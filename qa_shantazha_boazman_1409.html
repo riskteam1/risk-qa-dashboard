@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Highnote Risk QA Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+/* ── Dataviz skill palette (reference instance) ─────────── */
+:root {
+  --surface-1:    #fcfcfb;
+  --surface-page: #f9f9f7;
+  --ink-1:        #0b0b0b;
+  --ink-2:        #52514e;
+  --ink-muted:    #898781;
+  --grid:         #e1e0d9;
+  --baseline:     #c3c2b7;
+  --border:       rgba(11,11,11,0.10);
+  /* Status (fixed — icon+label required) */
+  --good:         #0ca30c;
+  --good-bg:      #e6f7e6;
+  --warning:      #ec835a;
+  --warning-bg:   #fdf0ea;
+  --critical:     #d03b3b;
+  --critical-bg:  #fbe8e8;
+  /* Categorical slots 1-6 (analyst identity) */
+  --cat-1: #2a78d6; /* Jessica  */
+  --cat-2: #eb6834; /* Shantazha*/
+  --cat-3: #1baf7a; /* Sidney   */
+  --cat-4: #eda100; /* Rene     */
+  --cat-5: #e87ba4; /* Saedika  */
+  --cat-6: #008300; /* Brian    */
+  /* Sequential blue (score bars) */
+  --seq-lo: #cde2fb;
+  --seq-hi: #2a78d6;
+  --accent:  #2a78d6;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--surface-page);color:var(--ink-1);font-size:14px;line-height:1.5}
+
+/* ── LOGIN ───────────────────────────────────────────────── */
+#login{position:fixed;inset:0;background:var(--surface-page);display:flex;align-items:center;justify-content:center;z-index:999}
+.lcard{background:var(--surface-1);border:1px solid var(--border);border-radius:14px;padding:44px 40px;width:420px;box-shadow:0 8px 32px rgba(0,0,0,.10)}
+.llogo{display:flex;align-items:center;gap:12px;margin-bottom:32px}
+.lbadge{width:40px;height:40px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:15px;flex-shrink:0}
+.llogo-text div:first-child{font-weight:700;font-size:15px}
+.llogo-text div:last-child{font-size:12px;color:var(--ink-2)}
+.lcard h2{font-size:22px;font-weight:700;margin-bottom:6px}
+.lcard p{color:var(--ink-2);font-size:13px;margin-bottom:28px;line-height:1.6}
+.lcard label{display:block;font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-2);margin-bottom:7px}
+.lcard select{width:100%;padding:11px 36px 11px 12px;border:1px solid var(--baseline);border-radius:8px;font-size:14px;background:var(--surface-1);color:var(--ink-1);margin-bottom:22px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23898781' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;cursor:pointer;transition:border-color .15s}
+.lcard select:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:var(--accent)}
+.lbtn{width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;transition:background .15s;letter-spacing:.02em}
+.lbtn:hover{background:#256abf}
+
+/* ── APP SHELL ───────────────────────────────────────────── */
+#app{display:none;min-height:100vh}
+
+/* ── NAV ─────────────────────────────────────────────────── */
+.nav{background:var(--surface-1);border-bottom:1px solid var(--grid);height:56px;padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100}
+.nav-badge{width:30px;height:30px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px;flex-shrink:0}
+.nav-title{font-weight:700;font-size:15px;flex:1}
+.nav-title span{font-weight:400;color:var(--ink-2);font-size:13px;margin-left:6px}
+.nav-period{padding:6px 30px 6px 10px;border:1px solid var(--baseline);border-radius:6px;font-size:13px;background:var(--surface-1);color:var(--ink-1);appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23898781' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;cursor:pointer}
+.user-pill{display:flex;align-items:center;gap:7px;padding:5px 12px;background:var(--surface-page);border:1px solid var(--grid);border-radius:20px;font-size:13px}
+.upill-dot{width:7px;height:7px;border-radius:50%;background:var(--good)}
+.upill-role{font-size:11px;padding:2px 8px;background:var(--accent);color:#fff;border-radius:10px;font-weight:700}
+.signout{padding:6px 12px;font-size:12px;background:none;border:1px solid var(--baseline);border-radius:6px;color:var(--ink-2);cursor:pointer}
+.signout:hover{background:var(--surface-page)}
+
+/* ── LAYOUT ──────────────────────────────────────────────── */
+.main{padding:24px;max-width:1440px;margin:0 auto}
+.sec-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-muted);margin-bottom:12px;margin-top:28px}
+.sec-label:first-child{margin-top:0}
+
+/* ── STAT TILES ──────────────────────────────────────────── */
+.tiles{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.tile{background:var(--surface-1);border:1px solid var(--grid);border-radius:10px;padding:18px 20px}
+.tile-label{font-size:12px;color:var(--ink-2);font-weight:500;margin-bottom:8px;display:flex;align-items:center;gap:5px}
+.tile-val{font-size:30px;font-weight:700;line-height:1;margin-bottom:5px}
+.tile-sub{font-size:12px;color:var(--ink-muted)}
+.tile.t-good .tile-val{color:var(--good)}
+.tile.t-warn .tile-val{color:var(--warning)}
+.tile.t-bad  .tile-val{color:var(--critical)}
+
+/* ── SCORECARD TABLE ─────────────────────────────────────── */
+.card{background:var(--surface-1);border:1px solid var(--grid);border-radius:10px;padding:20px;overflow-x:auto}
+.card-title{font-size:13px;font-weight:700;margin-bottom:3px}
+.card-sub{font-size:12px;color:var(--ink-2);margin-bottom:16px}
+
+/* Filter tabs */
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.tab{padding:5px 13px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid var(--grid);background:var(--surface-1);cursor:pointer;color:var(--ink-2);transition:all .15s}
+.tab.t-all.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:860px}
+th{text-align:left;padding:8px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-muted);border-bottom:1px solid var(--grid);white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid var(--grid);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--surface-page)}
+.tc{text-align:center;font-variant-numeric:tabular-nums}
+
+.aname{display:flex;align-items:center;gap:8px;font-weight:600}
+.adot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.mgr-row{cursor:pointer;transition:background .1s}
+.mgr-row:hover{background:#f0f5ff !important}
+
+/* Score bar */
+.sbar-wrap{display:flex;align-items:center;gap:8px;min-width:130px}
+.sbar-bg{flex:1;height:6px;background:var(--grid);border-radius:3px;overflow:hidden}
+.sbar-fill{height:100%;border-radius:3px;transition:width .5s ease}
+.sval{font-size:13px;font-weight:700;min-width:36px;text-align:right;font-variant-numeric:tabular-nums}
+
+/* Chips */
+.chip{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
+.chip-pass{background:var(--good-bg);color:#057a05}
+.chip-minor{background:var(--warning-bg);color:#b85d35}
+.chip-major{background:var(--critical-bg);color:var(--critical)}
+
+/* ── CHARTS ROW ──────────────────────────────────────────── */
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.chart-wrap{position:relative}
+
+/* ── LEGEND ──────────────────────────────────────────────── */
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--ink-2)}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* ── FINDINGS LIST ───────────────────────────────────────── */
+.finding{padding:14px 0;border-bottom:1px solid var(--grid)}
+.finding:last-child{border-bottom:none}
+.finding-header{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px}
+.finding-meta{font-size:12px;color:var(--ink-muted);margin-left:auto}
+.finding-comment{font-size:13px;color:var(--ink-2);line-height:1.55}
+.empty{padding:32px;text-align:center;color:var(--ink-muted);font-size:13px}
+
+/* ── RESPONSIVE ──────────────────────────────────────────── */
+@media(max-width:960px){.tiles{grid-template-columns:repeat(2,1fr)}.charts-row{grid-template-columns:1fr}}
+@media(max-width:1200px) and (min-width:961px){.tiles{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+
+<!-- ══ APP ══════════════════════════════════════════════════ -->
+<div id="app">
+  <!-- Nav -->
+  <nav class="nav">
+    <div class="nav-badge">HN</div>
+    <button id="nav-back" onclick="backToTeam()" style="display:none;align-items:center;gap:5px;padding:6px 12px;font-size:12px;font-weight:600;background:none;border:1px solid var(--baseline);border-radius:6px;color:var(--ink-2);cursor:pointer;white-space:nowrap">← Team View</button>
+    <div class="nav-title">Risk QA Dashboard <span id="nav-sub"></span></div>
+    <select class="nav-period" id="period-sel" onchange="onPeriodChange()">
+      <optgroup label="─── July 2026 ───">
+        <option value="2026-07">Jul 2026 · Full Month</option>
+        <option value="2026-07 H1">Jul 2026 · H1  (1st – 15th)</option>
+        <option value="2026-07 H2" selected>Jul 2026 · H2  (16th – 31st)</option>
+      </optgroup>
+      <optgroup label="─── June 2026 ───">
+        <option value="2026-06">Jun 2026 · Full Month</option>
+        <option value="2026-06 H1">Jun 2026 · H1  (1st – 15th)</option>
+        <option value="2026-06 H2">Jun 2026 · H2  (16th – 30th)</option>
+      </optgroup>
+    </select>
+    <div class="user-pill">
+      <div class="upill-dot"></div>
+      <span id="nav-name"></span>
+      <span class="upill-role" id="nav-role"></span>
+    </div>
+    <button class="signout" onclick="doLogout()">Sign out</button>
+  </nav>
+
+  <!-- Manager view -->
+  <div id="mgr-view" style="display:none">
+    <div class="main">
+      <div class="sec-label">Team Overview · <span id="mgr-period-label"></span></div>
+      <div class="tiles" id="mgr-tiles"></div>
+
+      <div class="sec-label" style="margin-top:22px">Analyst Scorecards</div>
+      <div class="card">
+        <div class="card-sub" style="margin-bottom:10px;font-size:11px;color:var(--ink-muted)">⭐ QA Score = average rubric score per case (Pass = 100% · findings scored by criteria met out of 8)</div>
+        <div class="tabs" id="mgr-tabs"></div>
+        <table>
+          <thead>
+            <tr>
+              <th>Analyst</th>
+              <th style="min-width:160px">⭐ QA Score</th>
+              <th class="tc">Reviewed</th>
+              <th class="tc">✓ Pass</th>
+              <th class="tc">Pass Rate</th>
+              <th class="tc">◎ Minor</th>
+              <th class="tc">⚠ Major</th>
+              <th class="tc">App Review</th>
+              <th class="tc">TM Alert</th>
+              <th class="tc">OFAC</th>
+              <th class="tc">EDD</th>
+              <th class="tc">Investigation</th>
+            </tr>
+          </thead>
+          <tbody id="mgr-tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="sec-label">QA Score Trend — All Analysts</div>
+      <div class="card">
+        <div class="card-title">Team QA Score by Period</div>
+        <div class="card-sub">Average rubric score per case, by period</div>
+        <div class="legend" id="trend-legend"></div>
+        <div class="chart-wrap" style="height:220px"><canvas id="trend-chart"></canvas></div>
+      </div>
+
+      <div class="sec-label">Category & Analyst Breakdown</div>
+      <div class="charts-row">
+        <div class="card">
+          <div class="card-title">QA Score by Analyst</div>
+          <div class="card-sub">Current period · weighted score · click to view profile</div>
+          <div class="chart-wrap" style="height:210px"><canvas id="bar-analyst"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Findings by Category</div>
+          <div class="card-sub">Major + Minor findings this period</div>
+          <div class="chart-wrap" style="height:210px"><canvas id="bar-cat"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analyst view -->
+  <div id="ana-view" style="display:none">
+    <div class="main">
+      <div class="sec-label" id="ana-header"></div>
+      <div class="tiles" id="ana-tiles"></div>
+
+      <div class="sec-label" style="margin-top:22px">My Score by Category</div>
+      <div class="card">
+        <div class="card-sub" style="margin-bottom:10px;font-size:11px;color:var(--ink-muted)">⭐ QA Score = average rubric score per case (Pass = 100% · findings scored by criteria met out of 8)</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th style="min-width:160px">⭐ QA Score</th>
+              <th class="tc">Reviewed</th>
+              <th class="tc">✓ Pass</th>
+              <th class="tc">Pass Rate</th>
+              <th class="tc">◎ Minor</th>
+              <th class="tc">⚠ Major</th>
+            </tr>
+          </thead>
+          <tbody id="ana-tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="sec-label">My QA Score Over Time</div>
+      <div class="card">
+        <div class="card-title" id="ana-trend-title"></div>
+        <div class="card-sub">Average rubric score per case, by period</div>
+        <div class="chart-wrap" style="height:200px"><canvas id="ana-trend"></canvas></div>
+      </div>
+
+      <div class="sec-label">Recent Feedback</div>
+      <div class="card" id="ana-findings"></div>
+
+      <div class="sec-label">My Reviewed Cases</div>
+      <div class="card" id="ana-cases-card" style="padding:0;overflow:hidden">
+        <div id="ana-cases-body" style="padding:16px 20px"></div>
+      </div>
+
+      <div class="sec-label">QA Acknowledgment</div>
+      <div class="card" id="ana-ack-card"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DRILL-THROUGH MODAL ═════════════════════════════════ -->
+<div id="drill-overlay" style="display:none;position:fixed;inset:0;background:rgba(11,11,11,.45);z-index:500;align-items:center;justify-content:center">
+  <div style="background:#fcfcfb;border-radius:14px;width:min(780px,95vw);max-height:85vh;display:flex;flex-direction:column;box-shadow:0 16px 48px rgba(0,0,0,.22)">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px 16px;border-bottom:1px solid #e1e0d9">
+      <div>
+        <div style="font-weight:700;font-size:15px" id="drill-title">Case Detail</div>
+        <div style="font-size:12px;color:#52514e;margin-top:2px" id="drill-sub"></div>
+      </div>
+      <button onclick="closeDrillModal()" style="background:none;border:1px solid #c3c2b7;border-radius:6px;padding:5px 11px;cursor:pointer;font-size:12px;color:#52514e">✕ Close</button>
+    </div>
+    <div style="overflow-y:auto;padding:20px 24px" id="drill-body"></div>
+  </div>
+</div>
+
+<script>
+/* ══ SIGN-OFFS (in-memory, per analyst+period) ══════════════════════ */
+const SIGN_OFFS = {};
+// Key: `${analyst}|${period}`
+// Value: { reviewer: {name,ts} | null, analyst: {name,ts} | null }
+
+// Paste your deployed Apps Script web app URL here to enable persistent sign-offs + email.
+// Leave empty to keep the button in preview mode (signs within the session only, no email sent).
+const SIGNOFF_URL = '';
+
+function getSignOff(analyst,period){
+  const k=`${analyst}|${period}`;
+  if(!SIGN_OFFS[k]) SIGN_OFFS[k]={reviewer:null,analyst:null};
+  return SIGN_OFFS[k];
+}
+
+/* Loads persisted sign-offs from the sheet, then re-renders the acknowledgment card */
+async function fetchAndRenderSignOffs(analyst){
+  if(!SIGNOFF_URL) return;
+  try{
+    const url=`${SIGNOFF_URL}?analyst=${encodeURIComponent(analyst)}&period=${encodeURIComponent(PERIOD)}`;
+    const res=await fetch(url);
+    const data=await res.json();
+    const rec=getSignOff(analyst,PERIOD);
+    if(data.reviewer) rec.reviewer=data.reviewer;
+    if(data.analyst)  rec.analyst =data.analyst;
+    renderAcknowledgment(analyst);
+  }catch(e){ console.warn('Could not load sign-offs:',e); }
+}
+
+/* Records a sign-off — optimistic UI update first, then persists to sheet */
+async function doSign(analyst,period,role){
+  const rec=getSignOff(analyst,period);
+  const signerName=role==='reviewer'?WHO:analyst;
+  const now=new Date();
+  const ts=now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})+
+           ' '+now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  // Show immediately in session
+  rec[role]={name:signerName,ts};
+  renderAcknowledgment(analyst);
+  // Persist to sheet (and trigger email if role==='reviewer')
+  if(SIGNOFF_URL){
+    try{
+      const url=`${SIGNOFF_URL}?action=write`+
+        `&analyst=${encodeURIComponent(analyst)}`+
+        `&period=${encodeURIComponent(period)}`+
+        `&role=${encodeURIComponent(role)}`+
+        `&signerName=${encodeURIComponent(signerName)}`+
+        `&ts=${encodeURIComponent(ts)}`;
+      await fetch(url);
+    }catch(e){ console.warn('Sign-off not saved to sheet:',e); }
+  }
+}
+
+function renderAcknowledgment(analyst){
+  const el=document.getElementById('ana-ack-card');
+  if(!el) return;
+  const rec=getSignOff(analyst,PERIOD);
+
+  function signPanel(roleKey,label,icon,accentColor,signerDefault,canSign){
+    const signed=rec[roleKey];
+    if(signed){
+      return `
+        <div style="flex:1;min-width:220px;border:1.5px solid ${accentColor}33;border-radius:10px;padding:18px 20px;background:${accentColor}08">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+            <span style="font-size:16px">${icon}</span>
+            <span style="font-size:12px;font-weight:700;color:#52514e;text-transform:uppercase;letter-spacing:.06em">${label}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+            <span style="display:inline-flex;align-items:center;gap:5px;background:${accentColor};color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:12px">
+              ✓ Signed
+            </span>
+          </div>
+          <div style="font-size:13px;font-weight:600;color:#0b0b0b;margin-bottom:2px">${signed.name}</div>
+          <div style="font-size:11px;color:#898781">${signed.ts}</div>
+        </div>`;
+    }
+    const btnDisabled=!canSign;
+    const btnStyle=btnDisabled
+      ? `background:#e1e0d9;color:#b3b2ad;cursor:not-allowed;border:none;`
+      : `background:${accentColor};color:#fff;cursor:pointer;border:none;`;
+    const tooltip=btnDisabled&&roleKey==='reviewer'
+      ? ' title="Only QA reviewers can sign off here"'
+      : btnDisabled&&roleKey==='analyst'
+      ? ' title="Only the analyst can sign here"'
+      : '';
+    return `
+      <div style="flex:1;min-width:220px;border:1.5px solid #e1e0d9;border-radius:10px;padding:18px 20px;background:#fafaf8">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+          <span style="font-size:16px">${icon}</span>
+          <span style="font-size:12px;font-weight:700;color:#52514e;text-transform:uppercase;letter-spacing:.06em">${label}</span>
+        </div>
+        <div style="font-size:12px;color:#898781;margin-bottom:14px;line-height:1.5">${signerDefault}</div>
+        <button${tooltip}
+          onclick="${canSign?`doSign('${analyst.replace(/'/g,"\\'")}','${PERIOD}','${roleKey}')`:'void(0)'}"
+          style="font-size:12px;font-weight:600;padding:7px 18px;border-radius:7px;${btnStyle}transition:opacity .15s"
+          ${btnDisabled?'disabled':''}>
+          ${roleKey==='reviewer'?'Release QA':'Acknowledge QA'}
+        </button>
+      </div>`;
+  }
+
+  // Analyst panel: only the current analyst (logged in as themselves) can sign
+  const isAnalystSelf = (WHO===analyst && ROLE==='analyst');
+  const analystDefault = isAnalystSelf
+    ? `Signing as <strong>${analyst}</strong> — acknowledges findings have been reviewed with lead.`
+    : `Awaiting acknowledgment from <strong>${analyst}</strong>.`;
+
+  const acknowledged = !!rec.analyst;
+
+  el.innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:16px">
+      <div>
+        <div style="font-size:14px;font-weight:700;color:#0b0b0b">QA Acknowledgment — ${PERIOD}</div>
+        <div style="font-size:12px;color:#898781;margin-top:2px">Acknowledge that you have reviewed your QA findings with your lead.</div>
+      </div>
+      ${acknowledged?`<span style="display:inline-flex;align-items:center;gap:5px;background:#0ca30c;color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:12px">✓ Acknowledged</span>`:''}
+    </div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap">
+      ${signPanel('analyst','Analyst Acknowledgment','✍️','#1baf7a',analystDefault,isAnalystSelf)}
+    </div>`;
+}
+
+/* ══ DATA ═══════════════════════════════════════════════════════════ */
+const ANALYSTS = ['Shantazha Boazman'];
+const CATEGORIES = ['Application Review','TM Alert','OFAC Screening','EDD','Investigation'];
+const PERIODS = ['2026-06 H1','2026-06 H2','2026-07 H1','2026-07 H2'];
+const MONTHLY = {
+  '2026-06': ['2026-06 H1','2026-06 H2'],
+  '2026-07': ['2026-07 H1','2026-07 H2'],
+};
+const COLORS = {
+  'Jessica Henderson': '#2a78d6',
+  'Shantazha Boazman': '#eb6834',
+  'Sidney Love':       '#1baf7a',
+  'Rene Ike':          '#eda100',
+  'Saedika Chambers':  '#e87ba4',
+  'Brian Bailey':      '#008300',
+};
+
+// {analyst → period → category → {pass,minor,major,reviewed}}
+const D = {
+  'Shantazha Boazman': {
+    '2026-06 H1': {'Application Review':{pass:7,minor:0,major:1,reviewed:8,scoreSum:775},'TM Alert':{pass:0,minor:0,major:0,reviewed:0},'OFAC Screening':{pass:0,minor:0,major:0,reviewed:0},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:0,minor:0,major:0,reviewed:0}},
+    '2026-06 H2': {'Application Review':{pass:0,minor:0,major:0,reviewed:0},'TM Alert':{pass:0,minor:0,major:0,reviewed:0},'OFAC Screening':{pass:0,minor:0,major:0,reviewed:0},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:0,minor:0,major:1,reviewed:1,scoreSum:75}},
+    '2026-07 H1': {'Application Review':{pass:0,minor:0,major:0,reviewed:0},'TM Alert':{pass:0,minor:0,major:0,reviewed:0},'OFAC Screening':{pass:0,minor:0,major:0,reviewed:0},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:0,minor:0,major:0,reviewed:0}},
+    '2026-07 H2': {'Application Review':{pass:0,minor:0,major:0,reviewed:0},'TM Alert':{pass:0,minor:0,major:0,reviewed:0},'OFAC Screening':{pass:0,minor:0,major:0,reviewed:0},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:0,minor:0,major:0,reviewed:0}},
+  },
+};
+
+const FINDINGS = {
+  'Shantazha Boazman': [
+
+    {period:'2026-06 H1',cat:'Application Review',caseId:'ap_22bcgm04zmp92bvsv5p1jpr2a5o8pgtbvvknqk',result:'pass',comment:'Notes are clear and no docs were needed'},
+    {period:'2026-06 H1',cat:'Application Review',caseId:'ap_22bcgm04z2grsf5q9s81jpvb6s2n85sijt9eum',result:'pass',comment:'Notes are clear and outline decision made- notes are also carried over to the Sub notes'},
+    {period:'2026-06 H1',cat:'Application Review',caseId:'ap_22bcgm04zgebp6qfq7u1jq2mbbh998aj8nh9mw',result:'pass',comment:'Notes are clear and outline every step the analyst took to review the app. Notes are also carried over to the sub notes'},
+    {period:'2026-06 H1',cat:'Application Review',caseId:'ap_22bcgm04zi61ff5atja1jq2ke53f62nau1vhcq',result:'pass',comment:'Notes are clear and outline the decision made for the document denial and they are carried over to the sub notes'},
+    {period:'2026-06 H1',cat:'Application Review',caseId:'ap_22bcgm04zxiam418evp1jqaimelnn4me42ke5k',result:'major',comment:'Notes are clear, but the PAP address did not need to be verified since the flag says it was a match. The flag stated: "The address matched. The address provided is related to or matches a Mail Drop or PO Box location." All the analyst needed to do was check if the address was a PO box via google and if not, the app could have been approved after OFAC was reviewed'},
+    {period:'2026-06 H1',cat:'Application Review',caseId:'ap_22bcgm04zhpk8rds3pt1jqihasmg9ombufi4ag',result:'pass',comment:'Notes are clear and outline what is needed on the app. Doc decision is outlined and notes are carried over to the sub notes'},
+    {period:'2026-06 H1',cat:'Application Review',caseId:'ap_22bcgm04zjsow75aqof1jr5ji25eqmravo193d',result:'pass',comment:'Notes are clear for the dup SSN/EIN check- no docs were needed'},
+    {period:'2026-06 H1',cat:'Application Review',caseId:'ap_22bcgm04zmeng67uube1jquqf2tboaj93dhw1f',result:'pass',comment:'Notes are clear and outline the app decisioning and what is needed. Notes are also carried over to the sub notes.'},
+    {period:'2026-06 H2',cat:'Investigation',caseId:'test',result:'major',comment:'test note'},
+    {period:'2026-07 H2',cat:'Investigation',caseId:'AI-96MGLLW46WK966L2T',result:'pass',comment:'Notes detail why the investigation was opened, and a Zendesk ticket number was included in the investigation notes. The notes detailed that the card would be suspended, and the subscriber was notified. The activity turned out to be unauthorized. The card was closed. A new card was not issued per subscriber request. The correct disposition was se...'},
+    {period:'2026-07 H2',cat:'Investigation',caseId:'AI-KSVVKKGLJ6D2KZWS5',result:'pass',comment:'Notes detail the reason for the investigation, and the Zendesk ticket was included in the notes. The account was placed under review, and the subscriber was notified by the analyst. After no response, the analyst followed up for an update. The provided documents and US DOT information were added to the shared drive. The investigation was disposi...'},
+    {period:'2026-07 H2',cat:'Investigation',caseId:'AI-9XC2AR8YF5334X7U7',result:'pass',comment:'Notes are clear and explain why an investigation was opened. After receiving no response, the analyst notified the subscriber of the account deadline to avoid account closure. The account holder responded and verified that the charges were not authorized. The SLA was extended to allow additional time for the subscriber to provide the analyst wit...'},
+    {period:'2026-07 H2',cat:'TM Alert',caseId:'TM: A-ZMLSQRUHG9YCMZNGUR',result:'pass',comment:'n/a | n/a'},
+    {period:'2026-07 H2',cat:'TM Alert',caseId:'TM: A-T73JA49GYYKSJ9Y5EB',result:'pass',comment:'n/a | n/a'},
+    {period:'2026-07 H2',cat:'TM Alert',caseId:'TM: A-CKGHMTKAY8EB5T3764',result:'pass',comment:'n/a | n/a'},
+    {period:'2026-07 H2',cat:'TM Alert',caseId:'TM: A-7H4WN2KZ5TKK5NP7EC',result:'pass',comment:'n/a | n/a'},
+    {period:'2026-07 H2',cat:'TM Alert',caseId:'TM:A-3WEUREJMXCBX2ZDCGP',result:'pass',comment:'n/a | n/a'},
+    {period:'2026-07 H2',cat:'TM Alert',caseId:'TM: A-RZ7XU24T6YLUQ6CH4D',result:'pass',comment:'n/a | n/a'},
+    {period:'2026-07 H2',cat:'TM Alert',caseId:'TM: A-CHL2BRYLKRBARAYE7F',result:'pass',comment:'n/a | n/a'},
+    {period:'2026-07 H2',cat:'TM Alert',caseId:'TM:A-4KPGTXYUNQG29KK4BZ',result:'pass',comment:'n/a | n/a'},
+    {period:'2026-07 H2',cat:'TM Alert',caseId:'TM:A-GF2WZR4WZ2REUGQDSB',result:'pass',comment:'n/a | n/a'},
+    {period:'2026-07 H2',cat:'TM Alert',caseId:'TM: A-PAGM3STN7UXJPPY9FF',result:'pass',comment:'n/a | n/a'},
+  ],
+};
+
+/* ══ STATE ══════════════════════════════════════════════════════════ */
+let WHO = null, ROLE = null, PERIOD = '2026-07 H2', FILTER = 'all';
+let CH = {};
+
+/* ══ HELPERS ════════════════════════════════════════════════════════ */
+/* ── Combined period helper ────────────────────────────────── */
+function isMonthly(p){return /^\d{4}-\d{2}$/.test(p)}
+function getdata(analyst, period, cat){
+  if(isMonthly(period)){
+    const [h1k,h2k]=MONTHLY[period]||[];
+    const a=(h1k&&D[analyst][h1k])?D[analyst][h1k][cat]:{pass:0,minor:0,major:0,reviewed:0};
+    const b=(h2k&&D[analyst][h2k])?D[analyst][h2k][cat]:{pass:0,minor:0,major:0,reviewed:0};
+    const wsA=(a.scoreSum!==undefined)?a.scoreSum:a.reviewed*100;
+    const wsB=(b.scoreSum!==undefined)?b.scoreSum:b.reviewed*100;
+    const totalWs=wsA+wsB;
+    const totalRev=a.reviewed+b.reviewed;
+    const merged={pass:a.pass+b.pass,minor:a.minor+b.minor,major:a.major+b.major,reviewed:totalRev};
+    // Only attach scoreSum if it differs from a perfect score (avoids false precision on all-pass months)
+    if(totalRev>0 && totalWs < totalRev*100) merged.scoreSum=totalWs;
+    return merged;
+  }
+  return D[analyst][period][cat];
+}
+function getfindings(analyst, period){
+  if(isMonthly(period)){
+    const [h1k,h2k]=MONTHLY[period]||[];
+    return (FINDINGS[analyst]||[]).filter(f=>f.period===h1k||f.period===h2k);
+  }
+  return (FINDINGS[analyst]||[]).filter(f=>f.period===period);
+}
+function summary(analyst, period) {
+  let r=0,p=0,mn=0,mj=0,ws=0;
+  CATEGORIES.forEach(c=>{
+    const x=getdata(analyst,period,c);
+    r+=x.reviewed; p+=x.pass; mn+=x.minor; mj+=x.major;
+    // scoreSum = actual sum of per-case rubric scores from the QA sheet
+    // If not explicitly set, all-pass categories default to reviewed*100
+    ws += (x.scoreSum !== undefined) ? x.scoreSum : x.reviewed*100;
+  });
+  const wa = r ? ws/r : null;
+  return {r,p,mn,mj,rate:r?p/r*100:null, wa};
+}
+function scolor(v){return v===null?'#898781':v>=90?'#0ca30c':v>=75?'#ec835a':'#d03b3b'}
+function fmt(v){return v===null?'—':parseFloat(v.toFixed(2))+'%'}
+function sbar(v){return `<div class="sbar-wrap"><div class="sbar-bg"><div class="sbar-fill" style="width:${v??0}%;background:${scolor(v)}"></div></div><span class="sval" style="color:${scolor(v)}">${fmt(v)}</span></div>`}
+function catRate(a,p,c){const x=getdata(a,p,c);return x.reviewed?x.pass/x.reviewed*100:null}
+// QA Score per category: avg of actual rubric scores from the sheet
+function catWeighted(a,pd,c){
+  const x=getdata(a,pd,c);
+  if(!x.reviewed) return null;
+  const ws=(x.scoreSum !== undefined)?x.scoreSum:x.reviewed*100;
+  return ws/x.reviewed;
+}
+function chip(r,label){return `<span class="chip chip-${r}">${label}</span>`}
+
+/* ══ DRILL-THROUGH MODAL ════════════════════════════════════════════ */
+/* Finding notes lookup — FINDINGS caseIds are often shorter prefixes of CASES ids */
+function findNote(findMap, caseId){
+  if(findMap[caseId]) return findMap[caseId];
+  /* prefix match: findMap key is a leading substring of the full case id */
+  for(const key of Object.keys(findMap)){
+    if(caseId.startsWith(key) || key.startsWith(caseId)) return findMap[key];
+  }
+  return null;
+}
+
+function getCasesForPeriod(analyst, period, cat){
+  /* Returns array of case objects for a given analyst/period/cat from CASES */
+  if(!CASES[analyst]) return [];
+  if(isMonthly(period)){
+    const [h1k,h2k]=MONTHLY[period]||[];
+    const a=(CASES[analyst][h1k]||{})[cat]||[];
+    const b=(CASES[analyst][h2k]||{})[cat]||[];
+    return [...a,...b];
+  }
+  return (CASES[analyst][period]||{})[cat]||[];
+}
+
+function openDrillModal(analyst, cat, resultFilter){
+  const ov=document.getElementById('drill-overlay');
+  const body=document.getElementById('drill-body');
+  const title=document.getElementById('drill-title');
+  const sub=document.getElementById('drill-sub');
+
+  const targetAnalysts = analyst ? [analyst] : ANALYSTS;
+  const targetCats     = cat     ? [cat]     : CATEGORIES;
+
+  /* Build section list: one per analyst+cat combo that has cases */
+  let sections=[], totalCases=0;
+  targetAnalysts.forEach(a=>{
+    targetCats.forEach(c=>{
+      const allCases=getCasesForPeriod(a,PERIOD,c);
+      /* Filter by resultFilter if provided, otherwise findings only (minor or major) */
+      const cases=resultFilter==='all'
+        ? allCases
+        : resultFilter
+          ? allCases.filter(x=>x.result===resultFilter)
+          : allCases.filter(x=>x.result==='minor'||x.result==='major');
+      if(!cases.length) return;
+      const findMap={};
+      getfindings(a,PERIOD).filter(f=>f.cat===c).forEach(f=>{findMap[f.caseId]=f;});
+      sections.push({analyst:a,cat:c,cases,findMap});
+      totalCases+=cases.length;
+    });
+  });
+
+  title.textContent = analyst
+    ? `${analyst.split(' ')[0]}'s Findings · ${PERIOD}`
+    : resultFilter==='all'
+      ? `All Reviewed Cases · ${PERIOD}`
+      : resultFilter==='minor'
+        ? `Minor Findings · ${PERIOD}`
+        : resultFilter==='major'
+          ? `Major Findings · ${PERIOD}`
+          : cat
+            ? `${cat} Findings · ${PERIOD}`
+            : `All Findings · ${PERIOD}`;
+  sub.textContent = `${totalCases} case${totalCases!==1?'s':''} this period`;
+
+  if(!sections.length){
+    body.innerHTML='<p style="color:#898781;font-size:13px;padding:8px 0">No findings for this period — all reviewed cases passed. (Individual case data is available for Jul 2026 H1; other periods use aggregate placeholder counts.)</p>';
+    ov.style.display='flex';return;
+  }
+
+  /* Result badge helpers */
+  const badge=(r)=>{
+    const cfg={pass:['#0ca30c','#e6f7e6','Pass'],minor:['#ec835a','#fdf0ea','Minor'],major:['#d03b3b','#fbe8e8','Major']};
+    const [fg,bg,lbl]=cfg[r]||['#898781','#f0efec','—'];
+    return `<span style="font-size:10px;font-weight:700;color:${fg};background:${bg};padding:2px 7px;border-radius:10px;white-space:nowrap">${lbl}</span>`;
+  };
+
+  let html='';
+  sections.forEach(sec=>{
+    const rate=sec.cases.length?sec.cases.filter(c=>c.result==='pass').length/sec.cases.length*100:null;
+    const sc=scolor(rate);
+    html+=`<div style="margin-bottom:22px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid #e1e0d9">
+        <span style="font-size:12px;font-weight:700;color:${COLORS[sec.analyst]};background:${COLORS[sec.analyst]}18;padding:3px 10px;border-radius:20px">${sec.analyst.split(' ')[0]}</span>
+        <span style="font-size:12px;font-weight:600;color:#52514e">${sec.cat}</span>
+        <span style="margin-left:auto;font-size:12px;font-weight:700;color:${sc}">${fmt(rate)}</span>
+        <span style="font-size:11px;color:#898781">${sec.cases.length} finding${sec.cases.length!==1?'s':''}</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr style="background:#f9f9f7">
+            <th style="text-align:left;padding:6px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#898781;border-bottom:1px solid #e1e0d9">Case ID</th>
+            <th style="text-align:left;padding:6px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#898781;border-bottom:1px solid #e1e0d9">Date Reviewed</th>
+            <th style="text-align:left;padding:6px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#898781;border-bottom:1px solid #e1e0d9">Result</th>
+            <th style="text-align:left;padding:6px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#898781;border-bottom:1px solid #e1e0d9">Finding Notes</th>
+            <th style="padding:6px 10px;border-bottom:1px solid #e1e0d9"></th>
+          </tr>
+        </thead>
+        <tbody>`;
+    sec.cases.forEach((c,i)=>{
+      const finding=findNote(sec.findMap, c.id);
+      const comment=finding?finding.comment:'';
+      const bg=i%2===0?'#fcfcfb':'#f9f9f7';
+      html+=`<tr style="background:${bg}">
+        <td style="padding:7px 10px;border-bottom:1px solid #e1e0d9;font-family:monospace;font-size:11px;color:#52514e;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.id}</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #e1e0d9;color:#52514e;white-space:nowrap">${c.date}</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #e1e0d9">${badge(c.result)}</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #e1e0d9;color:#52514e;max-width:300px;line-height:1.4">${comment||''}</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #e1e0d9;white-space:nowrap">${c.zd?`<a href="${c.zd}" target="_blank" style="font-size:11px;color:#2a78d6;text-decoration:none">Open ↗</a>`:''}</td>
+      </tr>`;
+    });
+    html+=`</tbody></table></div>`;
+  });
+
+  body.innerHTML=html;
+  ov.style.display='flex';
+}
+function closeDrillModal(){document.getElementById('drill-overlay').style.display='none';}
+document.getElementById('drill-overlay').addEventListener('click',e=>{if(e.target===document.getElementById('drill-overlay'))closeDrillModal();});
+
+/* ══ AUTH ═══════════════════════════════════════════════════════════ */
+function activateSession(name, role){
+  WHO=name;ROLE=role;
+  const loginEl=document.getElementById('login'); if(loginEl) loginEl.style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('nav-name').textContent=name.split(' ')[0];
+  document.getElementById('nav-role').textContent=role==='manager'?'Full Access':'Analyst';
+  document.getElementById('nav-sub').textContent='· '+name.split(' ')[0];
+  if(role==='manager'){document.getElementById('mgr-view').style.display='block';renderMgr()}
+  else{document.getElementById('ana-view').style.display='block';renderAna(WHO)}
+}
+function doLogin(type){
+  const id = type==='mgr' ? 'usel-mgr' : 'usel-ana';
+  const v=document.getElementById(id).value;
+  if(!v){document.getElementById(id).style.borderColor='#d03b3b';return}
+  const [name,role]=v.split('|');
+  activateSession(name,role);
+}
+/* Auto-login for Shantazha Boazman */
+window.addEventListener('DOMContentLoaded', function(){ activateSession('Shantazha Boazman','analyst'); });
+function doLogout(){
+  WHO=null;ROLE=null;FILTER='all';VIEWED_ANALYST=null;
+  document.getElementById('nav-back').style.display='none';
+  document.getElementById('login').style.display='flex';
+  document.getElementById('app').style.display='none';
+  document.getElementById('mgr-view').style.display='none';
+  document.getElementById('ana-view').style.display='none';
+
+  Object.values(CH).forEach(c=>c.destroy());CH={};
+}
+let VIEWED_ANALYST = null; /* Full-access user drilling into an analyst profile */
+
+function viewAnalystProfile(analyst){
+  VIEWED_ANALYST = analyst;
+  document.getElementById('mgr-view').style.display = 'none';
+  document.getElementById('ana-view').style.display = 'block';
+  const btn = document.getElementById('nav-back');
+  btn.style.display = 'flex';
+  document.getElementById('nav-sub').textContent = '· Viewing ' + analyst.split(' ')[0];
+  renderAna(analyst);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function backToTeam(){
+  VIEWED_ANALYST = null;
+  document.getElementById('ana-view').style.display = 'none';
+  document.getElementById('mgr-view').style.display = 'block';
+  document.getElementById('nav-back').style.display = 'none';
+  document.getElementById('nav-sub').textContent = '· ' + WHO.split(' ')[0];
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function onPeriodChange(){
+  PERIOD = document.getElementById('period-sel').value;
+  if(ROLE === 'manager'){
+    if(VIEWED_ANALYST) renderAna(VIEWED_ANALYST);
+    else renderMgr();
+  } else {
+    renderAna(WHO);
+  }
+}
+
+/* ══ MANAGER ════════════════════════════════════════════════════════ */
+function renderMgr(){
+  document.getElementById('mgr-period-label').textContent=PERIOD;
+  mgrTiles();mgrTabs();mgrTable();trendChart();barAnalyst();barCat();
+}
+
+function mgrTiles(){
+  let r=0,p=0,mn=0,mj=0;
+  ANALYSTS.forEach(a=>{const s=summary(a,PERIOD);r+=s.r;p+=s.p;mn+=s.mn;mj+=s.mj});
+  const rate=r?p/r*100:0;
+  let ws2=0; ANALYSTS.forEach(a=>{CATEGORIES.forEach(c=>{const x=getdata(a,PERIOD,c);ws2+=(x.scoreSum!==undefined)?x.scoreSum:x.reviewed*100;})});
+  const wa=r?ws2/r:0;
+  const withMaj=ANALYSTS.filter(a=>summary(a,PERIOD).mj>0).length;
+  document.getElementById('mgr-tiles').innerHTML=`
+    <div class="tile" style="cursor:pointer" onclick="openDrillModal(null,null,'all')" title="Click to view all reviewed cases">
+      <div class="tile-label">📋 Cases Reviewed</div>
+      <div class="tile-val">${r}</div>
+      <div class="tile-sub">Across all 5 categories ↗</div>
+    </div>
+    <div class="tile ${wa>=90?'t-good':wa>=75?'':'t-bad'}">
+      <div class="tile-label">⭐ Team QA Score</div>
+      <div class="tile-val">${fmt(wa)}</div>
+      <div class="tile-sub">Weighted rubric score</div>
+    </div>
+    <div class="tile ${rate>=90?'t-good':rate>=75?'':'t-bad'}">
+      <div class="tile-label">✓ Pass Rate</div>
+      <div class="tile-val">${fmt(rate)}</div>
+      <div class="tile-sub">${p} of ${r} cases passed</div>
+    </div>
+    <div class="tile ${mn>0?'t-warn':'t-good'}" style="cursor:pointer" onclick="openDrillModal(null,null,'minor')" title="Click to view minor findings">
+      <div class="tile-label">◎ Minor Findings</div>
+      <div class="tile-val">${mn}</div>
+      <div class="tile-sub">Needs follow-up ↗</div>
+    </div>
+    <div class="tile ${mj>0?'t-bad':'t-good'}" style="cursor:pointer" onclick="openDrillModal(null,null,'major')" title="Click to view major findings">
+      <div class="tile-label">⚠ Major Findings</div>
+      <div class="tile-val">${mj}</div>
+      <div class="tile-sub">${withMaj} analyst${withMaj!==1?'s':''} flagged ↗</div>
+    </div>`;
+}
+
+function mgrTabs(){
+  const el=document.getElementById('mgr-tabs');
+  el.innerHTML=`<button class="tab t-all ${FILTER==='all'?'active':''}" onclick="setFilter('all')">All Analysts</button>`
+    +ANALYSTS.map(a=>{
+      const c=COLORS[a],act=FILTER===a;
+      return `<button class="tab ${act?'active':''}" style="${act?`color:${c};border-color:${c};background:${c}18`:''}" onclick="setFilter('${a}')">${a.split(' ')[0]}</button>`;
+    }).join('');
+}
+
+function setFilter(v){FILTER=v;mgrTabs();mgrTable()}
+
+function mgrTable(){
+  const list=FILTER==='all'?ANALYSTS:[FILTER];
+  document.getElementById('mgr-tbody').innerHTML=list.map(a=>{
+    const s=summary(a,PERIOD),c=COLORS[a];
+    const cats=CATEGORIES.map(cat=>{
+      const v=catWeighted(a,PERIOD,cat);
+      return v===null?`<td class="tc" style="color:var(--baseline)">—</td>`
+        :`<td class="tc" style="color:${scolor(v)};font-weight:700;font-variant-numeric:tabular-nums">${parseFloat(v.toFixed(2))}%</td>`;
+    }).join('');
+    const hasFindings = s.mn > 0 || s.mj > 0;
+    return `<tr class="mgr-row" onclick="viewAnalystProfile('${a}')" title="Click to view ${a.split(' ')[0]}'s profile">
+      <td><div class="aname"><div class="adot" style="background:${c}"></div>${a}${hasFindings?`<span style="margin-left:8px;font-size:10px;color:#2a78d6;font-weight:600;opacity:.7">View findings ↗</span>`:''}</div></td>
+      <td>${sbar(s.wa)}</td>
+      <td class="tc">${s.r}</td>
+      <td class="tc" style="color:var(--good);font-weight:600">${s.p}</td>
+      <td class="tc" style="color:${s.r?(s.p/s.r*100>=90?'var(--good)':s.p/s.r*100>=75?'var(--ink-1)':'var(--critical)'):'var(--baseline)'};font-weight:600">${s.r?fmt(s.p/s.r*100):'—'}</td>
+      <td class="tc">${s.mn>0?`<span style="color:#b85d35;font-weight:700">${s.mn}</span>`:'<span style="color:var(--baseline)">0</span>'}</td>
+      <td class="tc">${s.mj>0?`<span style="color:var(--critical);font-weight:700">${s.mj}</span>`:'<span style="color:var(--baseline)">0</span>'}</td>
+      ${cats}
+    </tr>`;
+  }).join('');
+}
+
+function trendChart(){
+  const ctx=document.getElementById('trend-chart').getContext('2d');
+  if(CH.trend)CH.trend.destroy();
+  document.getElementById('trend-legend').innerHTML=ANALYSTS.map(a=>
+    `<div class="leg-item"><div class="leg-dot" style="background:${COLORS[a]}"></div>${a.split(' ')[0]}</div>`).join('');
+  CH.trend=new Chart(ctx,{type:'line',data:{labels:PERIODS,datasets:ANALYSTS.map(a=>({
+    label:a.split(' ')[0],
+    data:PERIODS.map(p=>{const s=summary(a,p);return s.r?s.wa:null}),
+    borderColor:COLORS[a],backgroundColor:COLORS[a]+'1a',
+    borderWidth:2,pointRadius:4,pointHoverRadius:6,tension:.3,spanGaps:true,fill:false,
+  }))},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,callbacks:{label:c=>` ${c.dataset.label}: ${parseFloat(c.parsed.y.toFixed(2))}%`}}},
+    scales:{
+      y:{min:55,max:100,grid:{color:'#e1e0d9'},ticks:{color:'#898781',font:{size:11},callback:v=>v+'%'},border:{color:'#c3c2b7'}},
+      x:{grid:{display:false},ticks:{color:'#898781',font:{size:11}},border:{color:'#c3c2b7'}},
+    },
+  }});
+}
+
+function barAnalyst(){
+  const ctx=document.getElementById('bar-analyst').getContext('2d');
+  if(CH.ba)CH.ba.destroy();
+  CH.ba=new Chart(ctx,{type:'bar',data:{
+    labels:ANALYSTS.map(a=>a.split(' ')[0]),
+    datasets:[{data:ANALYSTS.map(a=>summary(a,PERIOD).wa??0),
+      backgroundColor:ANALYSTS.map(a=>COLORS[a]+'cc'),borderColor:ANALYSTS.map(a=>COLORS[a]),
+      borderWidth:1,borderRadius:4,borderSkipped:false}],
+  },options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>{const a=ANALYSTS[c.dataIndex];return ` QA Score: ${parseFloat(c.parsed.x.toFixed(2))}%`;}}}},
+    scales:{
+      x:{min:0,max:100,grid:{color:'#e1e0d9'},ticks:{color:'#898781',font:{size:11},callback:v=>v+'%'},border:{color:'#c3c2b7'}},
+      y:{grid:{display:false},ticks:{color:'#52514e',font:{size:12}},border:{color:'#c3c2b7'}},
+    },
+    onClick:(e,items)=>{
+      if(!items.length)return;
+      const analyst=ANALYSTS[items[0].index];
+      viewAnalystProfile(analyst);
+    }
+  }});
+}
+
+function barCat(){
+  const ctx=document.getElementById('bar-cat').getContext('2d');
+  if(CH.bc)CH.bc.destroy();
+  const catLabels=CATEGORIES.map(c=>c.replace(' Screening','').replace(' Alert',''));
+  CH.bc=new Chart(ctx,{type:'bar',data:{
+    labels:catLabels,
+    datasets:[
+      {label:'Major',data:CATEGORIES.map(c=>ANALYSTS.reduce((s,a)=>s+getdata(a,PERIOD,c).major,0)),
+       backgroundColor:'#d03b3bcc',borderColor:'#d03b3b',borderWidth:1,borderRadius:4},
+      {label:'Minor',data:CATEGORIES.map(c=>ANALYSTS.reduce((s,a)=>s+getdata(a,PERIOD,c).minor,0)),
+       backgroundColor:'#ec835acc',borderColor:'#ec835a',borderWidth:1,borderRadius:4},
+    ],
+  },options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:true,position:'bottom',labels:{font:{size:11},color:'#52514e',boxWidth:10,padding:12}}},
+    scales:{
+      y:{grid:{color:'#e1e0d9'},ticks:{color:'#898781',font:{size:11},stepSize:1},border:{color:'#c3c2b7'}},
+      x:{grid:{display:false},ticks:{color:'#52514e',font:{size:11}},border:{color:'#c3c2b7'}},
+    },
+    onClick:(e,items)=>{
+      if(!items.length)return;
+      const cat=CATEGORIES[items[0].index];
+      openDrillModal(null, cat);
+    }
+  }});
+}
+
+/* ══ ANALYST ════════════════════════════════════════════════════════ */
+function renderAna(analyst){
+  const s=summary(analyst,PERIOD),c=COLORS[analyst]||'#2a78d6';
+  document.getElementById('ana-header').textContent=analyst+' · '+PERIOD;
+  document.getElementById('ana-trend-title').textContent=analyst.split(' ')[0]+'\'s QA Score — All Periods';
+
+  document.getElementById('ana-tiles').innerHTML=`
+    <div class="tile ${(s.wa??0)>=90?'t-good':(s.wa??0)>=75?'':'t-bad'}">
+      <div class="tile-label">⭐ My QA Score</div>
+      <div class="tile-val">${fmt(s.wa)}</div>
+      <div class="tile-sub">Weighted rubric score</div>
+    </div>
+    <div class="tile ${s.r?(s.p/s.r*100>=90?'t-good':s.p/s.r*100>=75?'':'t-bad'):''}">
+      <div class="tile-label">✓ Pass Rate</div>
+      <div class="tile-val">${s.r?fmt(s.p/s.r*100):'—'}</div>
+      <div class="tile-sub">${s.p} of ${s.r} cases passed</div>
+    </div>
+    <div class="tile">
+      <div class="tile-label">📋 Cases Reviewed</div>
+      <div class="tile-val">${s.r}</div>
+      <div class="tile-sub">This period</div>
+    </div>
+    <div class="tile ${s.mn>0?'t-warn':'t-good'}">
+      <div class="tile-label">◎ Minor Findings</div>
+      <div class="tile-val">${s.mn}</div>
+      <div class="tile-sub">${s.mn?'See feedback below':'No minor findings'}</div>
+    </div>
+    <div class="tile ${s.mj>0?'t-bad':'t-good'}">
+      <div class="tile-label">⚠ Major Findings</div>
+      <div class="tile-val">${s.mj}</div>
+      <div class="tile-sub">${s.mj?'Action required':'No major findings'}</div>
+    </div>`;
+
+  let rows='';
+  CATEGORIES.forEach(cat=>{
+    const x=getdata(analyst,PERIOD,cat);if(!x||!x.reviewed)return;
+    const wa=catWeighted(analyst,PERIOD,cat);
+    rows+=`<tr>
+      <td style="font-weight:600">${cat}</td>
+      <td>${sbar(wa)}</td>
+      <td class="tc">${x.reviewed}</td>
+      <td class="tc" style="color:var(--good);font-weight:600">${x.pass}</td>
+      <td class="tc" style="color:${x.reviewed?(x.pass/x.reviewed*100>=90?'var(--good)':x.pass/x.reviewed*100>=75?'var(--ink-1)':'var(--critical)'):'var(--baseline)'};font-weight:600">${x.reviewed?fmt(x.pass/x.reviewed*100):'—'}</td>
+      <td class="tc">${x.minor>0?`<span style="color:#b85d35;font-weight:700">${x.minor}</span>`:'0'}</td>
+      <td class="tc">${x.major>0?`<span style="color:var(--critical);font-weight:700">${x.major}</span>`:'0'}</td>
+    </tr>`;
+  });
+  document.getElementById('ana-tbody').innerHTML=rows||'<tr><td colspan="7" class="empty">No reviews this period.</td></tr>';
+
+  // Trend
+  const tCtx=document.getElementById('ana-trend').getContext('2d');
+  if(CH.at)CH.at.destroy();
+  CH.at=new Chart(tCtx,{type:'line',data:{labels:PERIODS,datasets:[{
+    label:'QA Score',
+    data:PERIODS.map(p=>{const s2=summary(analyst,p);return s2.r?s2.wa:null}),
+    borderColor:c,backgroundColor:c+'22',borderWidth:2.5,pointRadius:5,pointHoverRadius:7,
+    tension:.3,fill:true,spanGaps:true,
+  }]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:x=>` QA Score: ${parseFloat(x.parsed.y.toFixed(2))}%`}}},
+    scales:{
+      y:{min:55,max:100,grid:{color:'#e1e0d9'},ticks:{color:'#898781',font:{size:11},callback:v=>v+'%'},border:{color:'#c3c2b7'}},
+      x:{grid:{display:false},ticks:{color:'#898781',font:{size:11}},border:{color:'#c3c2b7'}},
+    },
+  }});
+
+  // My Cases
+  renderMyCases(analyst);
+
+  // Acknowledgment section — render immediately from session state, then load persisted data
+  renderAcknowledgment(analyst);
+  fetchAndRenderSignOffs(analyst); // async: updates card if sheet has a prior sign-off
+
+  // Findings — only show major/minor in Recent Feedback; pass notes appear in My Reviewed Cases table
+  const ff=getfindings(analyst,PERIOD).filter(f=>f.result==='major'||f.result==='minor');
+  document.getElementById('ana-findings').innerHTML=ff.length?ff.map(f=>{
+    const rc=f.result==='major'?'major':'minor';
+    const rl=f.result==='major'?'⚠ Major Finding':'◎ Minor Finding';
+    return `<div class="finding">
+      <div class="finding-header">
+        ${chip(rc,rl)}
+        <span style="font-size:12px;color:var(--ink-2);font-weight:500">${f.cat}</span>
+        <code style="font-size:11px;color:var(--ink-muted);background:var(--surface-page);padding:2px 6px;border-radius:4px">${f.caseId}</code>
+        <span class="finding-meta">${f.period}</span>
+      </div>
+      <div class="finding-comment">${f.comment}</div>
+    </div>`;
+  }).join(''):'<div class="empty">No findings on record for this period.</div>';
+}
+
+/* ══ MY REVIEWED CASES ══════════════════════════════════════════════ */
+function renderMyCases(analyst){
+  const el=document.getElementById('ana-cases-body');
+  /* Gather all cases for analyst across categories */
+  let allRows=[];
+  CATEGORIES.forEach(cat=>{
+    const cases=getCasesForPeriod(analyst,PERIOD,cat);
+    if(!cases.length) return;
+    const findMap={};
+    getfindings(analyst,PERIOD).filter(f=>f.cat===cat).forEach(f=>{findMap[f.caseId]=f;});
+    cases.forEach(c=>{
+      const finding=findNote(findMap, c.id);
+      allRows.push({cat,id:c.id,date:c.date,result:c.result,comment:finding?finding.comment:'',zd:c.zd});
+    });
+  });
+
+  if(!allRows.length){
+    el.innerHTML='<p style="color:#898781;font-size:13px">No individual case data on record for this period. Case-level detail is currently available for Jul 2026 H1.</p>';
+    return;
+  }
+
+  /* Sort: major → minor → pass, then by date */
+  const order={major:0,minor:1,pass:2};
+  allRows.sort((a,b)=>(order[a.result]??2)-(order[b.result]??2)||a.date.localeCompare(b.date));
+
+  const badge=(r)=>{
+    const cfg={pass:['#0ca30c','#e6f7e6','✓ Pass'],minor:['#ec835a','#fdf0ea','◎ Minor'],major:['#d03b3b','#fbe8e8','⚠ Major']};
+    const [fg,bg,lbl]=cfg[r]||['#898781','#f0efec','—'];
+    return `<span style="font-size:10px;font-weight:700;color:${fg};background:${bg};padding:2px 8px;border-radius:10px;white-space:nowrap">${lbl}</span>`;
+  };
+
+  const total=allRows.length;
+  const findings=allRows.filter(r=>r.result==='minor'||r.result==='major').length;
+  const passes=total-findings;
+
+  let html=`
+  <div style="display:flex;align-items:center;gap:16px;padding:14px 20px 12px;border-bottom:1px solid #e1e0d9;background:#f9f9f7">
+    <span style="font-size:13px;font-weight:700;color:#0b0b0b">${total} case${total!==1?'s':''} reviewed</span>
+    <span style="font-size:12px;color:#0ca30c;font-weight:600">✓ ${passes} passed</span>
+    ${findings?`<span style="font-size:12px;color:#d03b3b;font-weight:600">⚠ ${findings} with findings</span>`:''}
+    <span style="margin-left:auto;font-size:11px;color:#898781">${PERIOD}</span>
+  </div>
+  <div style="overflow-x:auto">
+  <table style="width:100%;border-collapse:collapse;font-size:12px">
+    <thead>
+      <tr style="background:#f9f9f7">
+        <th style="text-align:left;padding:8px 16px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#898781;border-bottom:1px solid #e1e0d9;white-space:nowrap">Case ID</th>
+        <th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#898781;border-bottom:1px solid #e1e0d9">Category</th>
+        <th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#898781;border-bottom:1px solid #e1e0d9;white-space:nowrap">Date Reviewed</th>
+        <th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#898781;border-bottom:1px solid #e1e0d9">Result</th>
+        <th style="text-align:left;padding:8px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#898781;border-bottom:1px solid #e1e0d9">Reviewer Feedback</th>
+        <th style="padding:8px 12px;border-bottom:1px solid #e1e0d9"></th>
+      </tr>
+    </thead>
+    <tbody>`;
+
+  allRows.forEach((r,i)=>{
+    const bg = r.result==='major' ? '#fff8f8' : r.result==='minor' ? '#fff9f5' : (i%2===0?'#fcfcfb':'#f9f9f7');
+    const shortId = r.id.length>32 ? r.id.substring(0,30)+'…' : r.id;
+    html+=`<tr style="background:${bg}">
+      <td style="padding:8px 16px;border-bottom:1px solid #e1e0d9;font-family:monospace;font-size:11px;color:#52514e;white-space:nowrap" title="${r.id}">${shortId}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e1e0d9;color:#52514e;white-space:nowrap">${r.cat}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e1e0d9;color:#52514e;white-space:nowrap">${r.date}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e1e0d9">${badge(r.result)}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e1e0d9;color:#52514e;max-width:280px;line-height:1.4">${r.comment||'<span style="color:#c3c2b7">—</span>'}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e1e0d9;white-space:nowrap">${r.zd?`<a href="${r.zd}" target="_blank" style="font-size:11px;color:#2a78d6;text-decoration:none;font-weight:500">Open ↗</a>`:''}</td>
+    </tr>`;
+  });
+
+  html+=`</tbody></table></div>`;
+  el.innerHTML=html;
+}
+
+const CASES = {
+  'Jessica Henderson': {
+    '2026-07 H1': {
+      'Application Review': [{id:'ap_22bcgm04znhq8ovr2ae1jsvj9kk094qw2c8ngb',result:'pass',date:'7/9/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/141212'},{id:'ap_22bcgm04zkj3dvdfh671jt0g5l9k56bh9m3x5u',result:'pass',date:'7/9/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/141233'},{id:'ap_22bcgm04zgbm56futmo1jsstsgnp65cf7jmw4w',result:'pass',date:'7/9/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/141287'},{id:'ap_22bcgm04z4ntsd3v2sc1jt1bs5339eoaa6ho39',result:'pass',date:'7/9/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/141288'},{id:'ap_22bcgm04znkb5g3iakm1jt1qlba6hq7ojmf22g',result:'pass',date:'7/10/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/141327'},{id:'ap_22bcgm04zbp4x17ueuw1jt43sej0526xdr6rbd',result:'pass',date:'7/10/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/141439'},{id:'ap_22bcgm04zfd48f1ern91jt1m3g88x5bf5p3d3c',result:'pass',date:'7/10/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/141459'},{id:'ap_22pcgm04zrqb4kspm6s1jt5264bbdtcnkuw93e',result:'pass',date:'7/13/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/141547?brand_id=360005767792'},{id:'ap_22bcgm04z4t75fa8xek1jt93g852bcn6onux1c',result:'pass',date:'7/13/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/141617'},{id:'ap_22bcgm04z1qtiprocqx1jt9730bt3odocftjj7',result:'pass',date:'7/13/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/141624'},{id:'ap_22bcgm04zp2s856okx61jt9l2970h79iw9ifxq',result:'pass',date:'7/13/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/141655'}],
+      'TM Alert': [{id:'A-4RLZ28YQ3BKXFH2R8T',result:'pass',date:'7/13/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-4RLZ28YQ3BKXFH2R8T?accountHolderId=og_ah02643f764320314729bdc8d2a8d20071a3'},{id:'A-4RRM6FLRLUCMZLKURS',result:'pass',date:'7/13/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-4RRM6FLRLUCMZLKURS?accountHolderId=og_ah02643f764320314729bdc8d2a8d20071a3'},{id:'A-8ZQQ6ARDCM7CVRDDYZ',result:'pass',date:'7/13/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-8ZQQ6ARDCM7CVRDDYZ?accountHolderId=og_ah02643f764320314729bdc8d2a8d20071a3'},{id:'A-K5NTA9WMM8WF55EHL2',result:'pass',date:'7/13/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-K5NTA9WMM8WF55EHL2?accountHolderId=og_ah02643f764320314729bdc8d2a8d20071a3'},{id:'A-KC4HC2H2L9F6DYVAKX',result:'pass',date:'7/13/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-KC4HC2H2L9F6DYVAKX?accountHolderId=og_ah02643f764320314729bdc8d2a8d20071a3'},{id:'A-NT4LW235RYK49HYCDZ',result:'pass',date:'7/13/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-NT4LW235RYK49HYCDZ?accountHolderId=og_ah02643f764320314729bdc8d2a8d20071a3'},{id:'A-P55Q62ZKCY3KUMLVS7',result:'pass',date:'7/13/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-P55Q62ZKCY3KUMLVS7?accountHolderId=og_ah02643f764320314729bdc8d2a8d20071a3'},{id:'A-WACMGFPB2HS6SAJT5L',result:'pass',date:'7/13/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-WACMGFPB2HS6SAJT5L?accountHolderId=og_ah02643f764320314729bdc8d2a8d20071a3'},{id:'A-WEERJR88ALKZUAP2HM',result:'pass',date:'7/13/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-WEERJR88ALKZUAP2HM?accountHolderId=og_ah02643f764320314729bdc8d2a8d20071a3'},{id:'A-YSQFMCUM7938RWBN37',result:'pass',date:'7/13/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-YSQFMCUM7938RWBN37?accountHolderId=og_ah02643f764320314729bdc8d2a8d20071a3'}],
+      'OFAC Screening': [{id:'coifs_47c1db5f68aa4d78bf10e35f9fb918d8',result:'pass',date:'7/9/2026',zd:'https://ops.highnote.com/risk/ofac/false-positive/coifs_47c1db5f68aa4d78bf10e35f9fb918d8'},{id:'coifs_52ce10d02df74aa9a797889a0f964cf8',result:'pass',date:'7/10/2026',zd:'https://www.google.com/url?q=https://ops.highnote.com/risk/ofac/false-positive/coifs_52ce10d02df74aa9a797889a0f964cf8&sa=D&source=editors&ust=1785205967479407&usg=AOvVaw1mfoz7aDzq_K10PfCZ3X6A'},{id:'coifs_71fda83a259b44a9b1add2642cb6bd66',result:'pass',date:'7/9/2026',zd:'https://ops.highnote.com/risk/ofac/false-positive/coifs_71fda83a259b44a9b1add2642cb6bd66'},{id:'coifs_e572aea6207c4d0fa5ee73bdf6f4ff68',result:'pass',date:'7/13/2026',zd:'https://ops.highnote.com/risk/ofac/false-positive/coifs_e572aea6207c4d0fa5ee73bdf6f4ff68'}],
+      'EDD': [{id:'ap_22bcgm04zio9rgmdkv71jq4jph6oph68dhp5gd',result:'pass',date:'7/6/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/136123'}],
+      'Investigation': [],
+    },
+    '2026-07 H2': {
+      'Application Review': [
+        {id:'ap_22bcgm04zx5afj7a5591jtog1ua54x4sjb96mn',result:'pass',date:'7/17/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/142383'},
+        {id:'ap_22bcgm04zimog6spvep1jtofbrumxiq7ps2rxc',result:'pass',date:'7/17/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/142374'},
+        {id:'ap_22bcgm04z3skmpxebct1ju2m2idejvn3mo52kx',result:'major',date:'7/21/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/142707'},
+        {id:'ap_22bcgm04zd5f9mbewtf1ju0cr4th857tnsnh1w',result:'pass',date:'7/21/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/142710'},
+        {id:'ap_22bcgm04zmo1h4xx6j61ju5u9105ws9tbiqjip',result:'pass',date:'7/23/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/142942'},
+        {id:'ap_22bcgm04zhpifg44fqc1ju860db5tpmsdm1udh',result:'pass',date:'7/23/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/143069'},
+        {id:'ap_22bcgm04zocdwg3eb751jucspcp2s7qcqpejwh',result:'major',date:'7/27/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/143327'},
+        {id:'ap_22bcgm04zhwv2jvwm1o1jucss58qoc85478c7e',result:'pass',date:'7/27/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/143328'},
+        {id:'ap_22bcgm04zn3dbmt9djs1juiu06ms61k8kq9xfo',result:'pass',date:'7/28/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/143622'},
+        {id:'ap_22bcgm04z5qdms83s1c1ju8bsm4cet9xpt2nvv',result:'pass',date:'7/28/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/143705'},
+        {id:'ap_22bcgm04z9o6cemuni61jul955lga2j4c4kuvj',result:'pass',date:'7/29/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/143764'},
+        {id:'ap_22bcgm04zrnfjcv99wf1jul23tuqjtgus3uwpx',result:'pass',date:'7/29/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/143754'},
+      ],
+      'TM Alert': [],
+      'OFAC Screening': [{id:'coifs_f231543f1a694267a54ad33c00c6f832',result:'pass',date:'7/22/2026',zd:'https://ops.highnote.com/risk/ofac/false-positive/coifs_f231543f1a694267a54ad33c00c6f832'},{id:'coifs_81fb8dea8489456d9236a3c9a1079864',result:'pass',date:'7/24/2026',zd:'https://ops.highnote.com/risk/ofac/false-positive/coifs_81fb8dea8489456d9236a3c9a1079864'},{id:'coifs_fc1b7e8fbf0b4f21b43b00445b44735e',result:'pass',date:'7/28/2026',zd:'https://ops.highnote.com/risk/ofac/false-positive/coifs_fc1b7e8fbf0b4f21b43b00445b44735e'},{id:'coifs_2cd786820cf4413cae456a36aef0e965',result:'pass',date:'7/23/2026',zd:'https://ops.highnote.com/risk/ofac/false-positive/coifs_2cd786820cf4413cae456a36aef0e965'}],
+      'EDD': [],
+      'Investigation': [{id:'AI-VRCDLWNPBP35FNH4X',result:'pass',date:'7/22/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3prd59fe5cae5254ec7a872763a16f7eb82/og_bs0144932741efa144b8ab5878ad2dcb21a7/AI-VRCDLWNPBP35FNH4X?accountHolderId=og_ah0204z6ntt72uuhv1jmc1gpugafi7xbjscb'},{id:'AI-K8EW48WYR23QKFUSN',result:'pass',date:'7/29/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3prf7cbddc391914a6fa291785ce538ed02/og_bs01db5f0e4bd2b24a0ab486b19e9b5833f6/AI-K8EW48WYR23QKFUSN?accountHolderId=og_ah0282b4b2cd37814eba866df95c068da4cc'},{id:'AI-NNU4ZV7BZDLVDV74M',result:'pass',date:'7/20/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3prf7cbddc391914a6fa291785ce538ed02/og_bs01db5f0e4bd2b24a0ab486b19e9b5833f6/AI-NNU4ZV7BZDLVDV74M?accountHolderId=og_ah0203z2a6o35owe2vf111sc4vttnegeetvw'}],
+    },
+  },
+  'Shantazha Boazman': {
+    '2026-07 H1': {
+      'Application Review': [],
+      'TM Alert': [],
+      'OFAC Screening': [],
+      'EDD': [],
+      'Investigation': [],
+    },
+  },
+  'Sidney Love': {
+    '2026-07 H1': {
+      'Application Review': [{id:'ap_22bcgm04zh21hraif5g1jskpa87qofqgqahufq',result:'pass',date:'7/6/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/140631'},{id:'ap_22bcgm04zh21hraif5g1jskpa87qofqgqahufq',result:'pass',date:'7/6/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/140632'},{id:'ap_22bcgm04zxfa55tfq441jsph1frai9nwxk447i',result:'pass',date:'7/7/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/140725'},{id:'ap_22bcgm04zofqensf5891jspvr0vkgnqksahugs',result:'pass',date:'7/7/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/140744'},{id:'ap_22bcgm04z98pp3e7c591jsq6kaaonvithq9pvb',result:'major',date:'7/7/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/140751'},{id:'ap_22bcgm04z9mt49c1k7b1jsqfsqmhp6qqem7tt6',result:'pass',date:'7/7/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/140761'},{id:'ap_22bcgm04zuow42gij6o1jstu3q3t7v8ea4ginw',result:'pass',date:'7/8/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/141052'},{id:'ap_22bcgm04zcvgfge9ggm1jsu79mh7ajbvt53k7d',result:'pass',date:'7/8/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/141062'},{id:'ap_22bcgm04zbq2f4i2jwx1jsufp4mbpi18n6ggu8',result:'major',date:'7/8/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/141084'},{id:'ap_22bcgm04z5g1j591h261jsuk1e5pm7jdt57qrj',result:'pass',date:'7/8/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/141098'},{id:'ap_22bcgm04zvkjibx97nr1jstq7pdgsnk9hk17rp',result:'pass',date:'7/10/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/141381'},{id:'ap_22bcgm04zkwdxrn6n7w1jt44l8bf8vsuwcocga',result:'pass',date:'7/10/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/141445'},{id:'ap_22bcgm04zuwkw2xj44c1jt67eckfcitmuviqhe',result:'major',date:'7/10/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/141524'},{id:'ap_22bcgm04z7xaiuiv5h31jt9riffrxeksxv5ron',result:'pass',date:'7/13/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/141656'},{id:'ap_22bcgm04zwx94fa59m81jtelvdllvd6f9hmj4d',result:'major',date:'7/14/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/141839'},{id:'ap_22bcgm04zon4g2xefpp1jtgipbhe7ut6fvnrus',result:'pass',date:'7/14/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/141901'},{id:'ap_22bcgm04ze2hgkaqsbx1jth4qod78bcqo3de3o',result:'pass',date:'7/14/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/141953'},{id:'ap_22bcgm04zgk4gupjqcb1jths2rb4oom33bs9q6',result:'pass',date:'7/15/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/141998'},{id:'ap_22bcgm04zceh3rpg5ji1jten1l5mkbowcag4s2',result:'pass',date:'7/15/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/142031'},{id:'ap_22bcgm04z3inqw66skw1jtjc4nrdas9ufit4g5',result:'pass',date:'7/15/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/142081'},{id:'ap_22bcgm04z94cvqdkp481jtjgmg0oha1a4f1kqi',result:'pass',date:'7/15/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/142098'},{id:'ap_22bcgm04zog9amiqe1a1jtjmn70aq63kct2n2i',result:'pass',date:'7/15/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/142118'},{id:'ap_22bcgm04z4u4rxfhr151jtjnt2pswunf2o2duo',result:'pass',date:'7/15/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/142123'}],
+      'TM Alert': [],
+      'OFAC Screening': [{id:'coifs_24bb62a8eb464cb5a0911fa3de5142d8',result:'pass',date:'7/15/2026',zd:'https://ops.highnote.com/risk/ofac/false-positive/coifs_24bb62a8eb464cb5a0911fa3de5142d8'},{id:'coifs_28a35b2b3ac64a60bcd29b218e2ed7b1',result:'pass',date:'7/14/2026',zd:'https://ops.highnote.com/risk/ofac/false-positive/coifs_28a35b2b3ac64a60bcd29b218e2ed7b1'},{id:'coifs_3f42f560165c4b4d879bfd818528b4e8',result:'pass',date:'7/14/2026',zd:'https://ops.highnote.com/risk/ofac/false-positive/coifs_3f42f560165c4b4d879bfd818528b4e8'},{id:'coifs_62d4510930bc4104a6e3ed3765404fc8',result:'pass',date:'7/15/2026',zd:'https://ops.highnote.com/risk/ofac/false-positive/coifs_62d4510930bc4104a6e3ed3765404fc8'},{id:'coifs_924bc285c9764298ae9f3c3be2676692',result:'major',date:'7/15/2026',zd:'https://ops.highnote.com/risk/ofac/false-positive/coifs_924bc285c9764298ae9f3c3be2676692'},{id:'coifs_ef0d5bf6dc054a3c8c0d02de25b720ff',result:'pass',date:'7/8/2026',zd:'https://ops.highnote.com/risk/ofac/false-positive/coifs_ef0d5bf6dc054a3c8c0d02de25b720ff'}],
+      'EDD': [{id:'ap_22bcgm04zmbv7nubaa21jq5138hnf5qs9h52b8',result:'pass',date:'7/6/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/136186'}],
+      'Investigation': [{id:'AI-U84HBQRA4QAP3HWR3',result:'pass',date:'7/6/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3prf7cbddc391914a6fa291785ce538ed02/og_bs01db5f0e4bd2b24a0ab486b19e9b5833f6/AI-U84HBQRA4QAP3HWR3?accountHolderId=og_ah0204zswtp5hq29x1jqbr3r7f8sh49a3o3u'}],
+    },
+    '2026-07 H2': {
+      'Application Review': [{id:'ap_22bcgm04zgs564hm7fe1jtodpu0gea86a64p9s',result:'pass',date:'7/17/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/142369'},{id:'ap_22bcgm04zcukg5b6uqr1ju07gi7crob7k8bese',result:'pass',date:'7/20/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/142578'},{id:'ap_22bcgm04zph3hg55h2a1jtlonj0c1co54gkaik',result:'pass',date:'7/16/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/142213'},{id:'ap_22bcgm04zcnhtqnms7k1ju85cpuspcpk8wk9qb',result:'pass',date:'7/23/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/143053'},{id:'ap_22bcgm04zx8w5tobxxe1jurv2ib9d8n8hrekgg',result:'pass',date:'7/31/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/144138'},{id:'ap_22bcgm04znjak75frpm1ju0m0agvfbnu46vs2a',result:'pass',date:'7/21/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/142619'},{id:'ap_22bcgm04zq75subof9w1jtbm1ga5tiavmbgevb',result:'pass',date:'7/31/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/144176'},{id:'ap_22bcgm04zx4r4v89rru1jttuom43rkqqaexdii',result:'major',date:'7/24/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/143231'},{id:'ap_22bcgm04zvob6qq6ck81jtn1sv753mc4dkx1kn',result:'pass',date:'7/17/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/142306'},{id:'ap_22bcgm04zjfnsqigm4n1ju7mt2dtv7t3325p59',result:'pass',date:'7/23/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/143014'},{id:'ap_22bcgm04znfdxsmweph1jturlsbvsi72nf73wk',result:'pass',date:'7/22/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/142844'},{id:'ap_22bcgm04zat31df5wat1jttpef1as6chb7gnue',result:'pass',date:'7/20/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/142507'}],
+      'TM Alert': [],
+      'OFAC Screening': [{id:'coifs_957beca952964f4980df5f28a72cbca2',result:'pass',date:'7/28/2026',zd:'https://ops.highnote.com/risk/ofac/false-positive/coifs_957beca952964f4980df5f28a72cbca2'},{id:'coifs_d56317a6becc46b1acaa8472ebfd0122',result:'pass',date:'7/16/2026',zd:'https://ops.highnote.com/risk/ofac/false-positive/coifs_d56317a6becc46b1acaa8472ebfd0122'},{id:'coifs_b29d2ff6563d43d7b93b62dfabc06737',result:'pass',date:'7/17/2026',zd:'https://ops.highnote.com/risk/ofac/false-positive/coifs_b29d2ff6563d43d7b93b62dfabc06737'},{id:'coifs_9a7ddbd711fe4cd6a88323abfa4ace8b',result:'pass',date:'7/27/2026',zd:'https://ops.highnote.com/risk/ofac/false-positive/coifs_9a7ddbd711fe4cd6a88323abfa4ace8b'}],
+      'EDD': [{id:'ap_22bcgm04z8tbpna6vf41js0om35fw3imjapjtd',result:'pass',date:'7/28/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/139419'}],
+      'Investigation': [],
+    },
+  },
+  'Rene Ike': {
+    '2026-07 H1': {
+      'Application Review': [],
+      'TM Alert': [{id:'A-3BSVPCZ7Y6UU7ENTD6',result:'pass',date:'7/2/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-3BSVPCZ7Y6UU7ENTD6?accountHolderId=og_ah02643f764320314729bdc8d2a8d20071a3'},{id:'A-4G7HB4E7QVJ5CNGWPG',result:'pass',date:'7/6/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3pr8560b4bec6ae4087ae4f084adfcf5aa5/og_bs011c6aa698ae834f929f461939a4dcc6f1/A-4G7HB4E7QVJ5CNGWPG?accountHolderId=og_bs011c6aa698ae834f929f461939a4dcc6f1'},{id:'A-5DM6WVAT6E2S27KG43',result:'pass',date:'7/15/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-5DM6WVAT6E2S27KG43?accountHolderId=og_ah02e9e6177650574cc082ee014c350dfbb1'},{id:'A-5U7KDP6FVGU33L2ZY3',result:'pass',date:'7/6/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-5U7KDP6FVGU33L2ZY3?accountHolderId=og_ah02643f764320314729bdc8d2a8d20071a3'},{id:'A-6YN4HH38WWPEUSJMP4',result:'pass',date:'7/9/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3pr0d3399f1de2643899dd3d64613e50802/og_bs01b25c0c45eee742f78fb019d9a264fcc4/A-6YN4HH38WWPEUSJMP4?accountHolderId=og_ah02d74ac74451fd4ac9a48b30e16af12600'},{id:'A-9MB9WKDFU9RSMMMQK9',result:'pass',date:'7/6/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3pr8560b4bec6ae4087ae4f084adfcf5aa5/og_bs011c6aa698ae834f929f461939a4dcc6f1/A-9MB9WKDFU9RSMMMQK9?accountHolderId=og_bs011c6aa698ae834f929f461939a4dcc6f1'},{id:'A-RFJMBLGD86FZHP5BA8',result:'pass',date:'7/8/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-RFJMBLGD86FZHP5BA8?accountHolderId=og_ah0203zk6dccuxqsq37a31sb9qd06ugiep8x'},{id:'A-VLSWM7QP6R9SC5MAAB',result:'pass',date:'7/6/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-VLSWM7QP6R9SC5MAAB?accountHolderId=og_ah02643f764320314729bdc8d2a8d20071a3'},{id:'A-WYQYSTEZE6H6YLBVUH',result:'pass',date:'7/6/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-WYQYSTEZE6H6YLBVUH?accountHolderId=og_ah0204zrnm98ucq1m1jp0ml4r0rrakpk3kh3'},{id:'A-ZR69KPFERBPZZRDZSG',result:'pass',date:'7/13/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3pr8560b4bec6ae4087ae4f084adfcf5aa5/og_bs011c6aa698ae834f929f461939a4dcc6f1/A-ZR69KPFERBPZZRDZSG?accountHolderId=og_bs011c6aa698ae834f929f461939a4dcc6f1'}],
+      'OFAC Screening': [{id:'coifs_f3273ea6a75c44218b437bd6fde11e12',result:'pass',date:'7/13/2026',zd:'https://ops.highnote.com/risk/ofac/false-positive/coifs_f3273ea6a75c44218b437bd6fde11e12'}],
+      'EDD': [],
+      'Investigation': [{id:'AI-DNB7ZPAS7LEKNWZYD',result:'minor',date:'7/1/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3prf7cbddc391914a6fa291785ce538ed02/og_bs01db5f0e4bd2b24a0ab486b19e9b5833f6/AI-DNB7ZPAS7LEKNWZYD?accountHolderId=og_ah021bd60eaa32e54342b9e50672b6f2de4a'},{id:'AI-U5GCBCMC3266BR4K5',result:'pass',date:'7/2/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3pr69a6392683814e20b794e83000d34b5e/og_bs01493d15994e54462c8f476b77b2c01954/AI-U5GCBCMC3266BR4K5?accountHolderId=og_ah0204zp76ucp9ve71jnie3c63n57pb9m2pp'},{id:'AI-YVJHT2GGZB4NM4EGR',result:'pass',date:'7/6/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3pr4c04258cd9e2457c9f5b9138be462aeb/og_bs013f9cc675f2054cf5b224866ee587e746/AI-YVJHT2GGZB4NM4EGR?accountHolderId=ps_ah017627f490488d446aacb3f4fa6628715e'}],
+    },
+    '2026-07 H2': {
+      'Application Review': [],
+      'TM Alert': [{id:'A-NUC4VCJTL9LJK4VKCT',result:'pass',date:'7/17/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-NUC4VCJTL9LJK4VKCT'},{id:'A-JY6TMPMLL33WQ26B6F',result:'pass',date:'7/17/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-JY6TMPMLL33WQ26B6F'},{id:'A-5Y64C9DJ8QDQ44DJNP',result:'pass',date:'7/31/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-5Y64C9DJ8QDQ44DJNP'},{id:'A-4HG43RCM2FKMZDPPGA',result:'pass',date:'7/17/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-4HG43RCM2FKMZDPPGA'},{id:'A-8UPKWFJQESF7YRKWRK',result:'pass',date:'7/31/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-8UPKWFJQESF7YRKWRK'},{id:'A-7FGWHZUXENBTT5NBMN',result:'pass',date:'7/17/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-7FGWHZUXENBTT5NBMN'},{id:'A-JZDSUXT9BVCKUP54AM',result:'pass',date:'7/17/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-JZDSUXT9BVCKUP54AM'},{id:'A-PGTWGKR3H73VUR7597',result:'pass',date:'7/17/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-PGTWGKR3H73VUR7597'},{id:'A-4J66M4W8667S6R4F8D',result:'pass',date:'7/31/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-4J66M4W8667S6R4F8D'},{id:'A-NEJJMTG9JMKAZ8DJHA',result:'pass',date:'7/31/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-NEJJMTG9JMKAZ8DJHA'}],
+      'OFAC Screening': [{id:'coifs_882a7296573b4306af93e83efebcaef4',result:'pass',date:'7/17/2026',zd:'https://ops.highnote.com/risk/ofac/false-positive/coifs_882a7296573b4306af93e83efebcaef4'}],
+      'EDD': [],
+      'Investigation': [{id:'AI-G5FYJPXWWUJQC8V53',result:'pass',date:'7/30/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3prd59fe5cae5254ec7a872763a16f7eb82/og_bs0144932741efa144b8ab5878ad2dcb21a7/AI-G5FYJPXWWUJQC8V53'},{id:'AI-EEWDTBRTMHNFWPQA3',result:'pass',date:'7/27/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3prd59fe5cae5254ec7a872763a16f7eb82/og_bs0144932741efa144b8ab5878ad2dcb21a7/AI-EEWDTBRTMHNFWPQA3'},{id:'AI-VTQJSCEGHM3ZQAGM7',result:'pass',date:'7/31/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3prd59fe5cae5254ec7a872763a16f7eb82/og_bs0144932741efa144b8ab5878ad2dcb21a7/AI-VTQJSCEGHM3ZQAGM7'}],
+    },
+  },
+  'Saedika Chambers': {
+    '2026-07 H1': {
+      'Application Review': [],
+      'TM Alert': [{id:'A-46968DX9TA7P4G4VKZ',result:'pass',date:'7/9/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3pr8560b4bec6ae4087ae4f084adfcf5aa5/og_bs011c6aa698ae834f929f461939a4dcc6f1/A-46968DX9TA7P4G4VKZ?accountHolderId=og_bs011c6aa698ae834f929f461939a4dcc6f1'},{id:'A-7MKY8FPT6ER87SEZTF',result:'pass',date:'7/10/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3pr1d716123f26e4e368e3af8054f3e92dd/og_bs01684f312de33c48369f9c493b166fd92c/A-7MKY8FPT6ER87SEZTF?accountHolderId=ps_ah0104zqmmxwe6isb1jj91nlndmd2jvjk557'},{id:'A-9KJKH25ASL5ZTGGEBH',result:'pass',date:'7/2/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-9KJKH25ASL5ZTGGEBH?accountHolderId=og_ah0203zk6dccuxqsq37a31sb9qd06ugiep8x'},{id:'A-C58UFQSSELS287P7ZM',result:'pass',date:'7/9/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-C58UFQSSELS287P7ZM?accountHolderId=og_ah02643f764320314729bdc8d2a8d20071a3'},{id:'A-H8JVPH9DGWKTFWS6A8',result:'pass',date:'7/2/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-H8JVPH9DGWKTFWS6A8?accountHolderId=og_ah0203zk6dccuxqsq37a31sb9qd06ugiep8x'},{id:'A-JVZWJUK3YGASYLNPJE',result:'pass',date:'7/10/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3pr1d716123f26e4e368e3af8054f3e92dd/og_bs01684f312de33c48369f9c493b166fd92c/A-JVZWJUK3YGASYLNPJE?accountHolderId=ps_ah0104zrgn48adbg81jnul4atkr1b6i4r7aw'},{id:'A-LCNSKW9Y3DTJD8J9H8',result:'pass',date:'7/9/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3pr8560b4bec6ae4087ae4f084adfcf5aa5/og_bs011c6aa698ae834f929f461939a4dcc6f1/A-LCNSKW9Y3DTJD8J9H8?accountHolderId=og_bs011c6aa698ae834f929f461939a4dcc6f1'},{id:'A-NKSYZQW67EHCJVPBVM',result:'pass',date:'7/15/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prc1949c7e2ead4f73845cab67ddc1ae8a/og_bs0106d65c03841241b0905a929f0141f83f/A-NKSYZQW67EHCJVPBVM?accountHolderId=og_ah020a98313981474140a3cf1e11f25de670'},{id:'A-RU97D9S8GC9268CXC5',result:'pass',date:'7/8/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3pr0d3399f1de2643899dd3d64613e50802/og_bs01b25c0c45eee742f78fb019d9a264fcc4/A-RU97D9S8GC9268CXC5?accountHolderId=og_ah02963498b1b5804bbc9242bfca41806d04'},{id:'A-RU97D9S8GC9268CXC5',result:'pass',date:'7/8/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3pr0d3399f1de2643899dd3d64613e50802/og_bs01b25c0c45eee742f78fb019d9a264fcc4/A-RU97D9S8GC9268CXC5?accountHolderId=og_ah02963498b1b5804bbc9242bfca41806d04'},{id:'A-SFPA337NKZJB4CC57K',result:'pass',date:'7/2/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3pr0d3399f1de2643899dd3d64613e50802/og_bs01b25c0c45eee742f78fb019d9a264fcc4/A-SFPA337NKZJB4CC57K?accountHolderId=og_ah0204z4xvsr6f7hw1jlmtak24u83ja5bxx1'}],
+      'OFAC Screening': [],
+      'EDD': [],
+      'Investigation': [{id:'AI-5EEB9JY4A79ERSPXU',result:'pass',date:'7/7/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3pr69a6392683814e20b794e83000d34b5e/og_bs01493d15994e54462c8f476b77b2c01954/AI-5EEB9JY4A79ERSPXU?accountHolderId=og_ah02bd10862627a34ebf8ef1911613d237f1'},{id:'AI-BY6BYEP6V7TDJ63D6',result:'pass',date:'7/7/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3prf7cbddc391914a6fa291785ce538ed02/og_bs01db5f0e4bd2b24a0ab486b19e9b5833f6/AI-BY6BYEP6V7TDJ63D6?accountHolderId=og_ah0204zcou71iapdr1jmsd136r8exst8h84g'},{id:'AI-PLJ2PMLV8CSSNRB9A',result:'pass',date:'7/10/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3pr4c04258cd9e2457c9f5b9138be462aeb/og_bs013f9cc675f2054cf5b224866ee587e746/AI-PLJ2PMLV8CSSNRB9A?accountHolderId=ps_ah01c951491112564303ae884b6c260747ea'}],
+    },
+    '2026-07 H2': {
+      'Application Review': [],
+      'TM Alert': [{id:'A-ZMLSQRUHG9YCMZNGUR',result:'pass',date:'7/17/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-ZMLSQRUHG9YCMZNGUR'},{id:'A-T73JA49GYYKSJ9Y5EB',result:'pass',date:'7/17/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-T73JA49GYYKSJ9Y5EB'},{id:'A-CKGHMTKAY8EB5T3764',result:'pass',date:'7/31/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-CKGHMTKAY8EB5T3764'},{id:'A-7H4WN2KZ5TKK5NP7EC',result:'pass',date:'7/17/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-7H4WN2KZ5TKK5NP7EC'},{id:'A-3WEUREJMXCBX2ZDCGP',result:'pass',date:'7/17/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-3WEUREJMXCBX2ZDCGP'},{id:'A-RZ7XU24T6YLUQ6CH4D',result:'pass',date:'7/17/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-RZ7XU24T6YLUQ6CH4D'},{id:'A-CHL2BRYLKRBARAYE7F',result:'pass',date:'7/17/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-CHL2BRYLKRBARAYE7F'},{id:'A-4KPGTXYUNQG29KK4BZ',result:'pass',date:'7/17/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-4KPGTXYUNQG29KK4BZ'},{id:'A-GF2WZR4WZ2REUGQDSB',result:'pass',date:'7/17/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-GF2WZR4WZ2REUGQDSB'},{id:'A-PAGM3STN7UXJPPY9FF',result:'pass',date:'7/17/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-PAGM3STN7UXJPPY9FF'}],
+      'OFAC Screening': [],
+      'EDD': [],
+      'Investigation': [{id:'AI-96MGLLW46WK966L2T',result:'pass',date:'7/27/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3prd59fe5cae5254ec7a872763a16f7eb82/og_bs0144932741efa144b8ab5878ad2dcb21a7/AI-96MGLLW46WK966L2T'},{id:'AI-KSVVKKGLJ6D2KZWS5',result:'pass',date:'7/27/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3prd59fe5cae5254ec7a872763a16f7eb82/og_bs0144932741efa144b8ab5878ad2dcb21a7/AI-KSVVKKGLJ6D2KZWS5'},{id:'AI-9XC2AR8YF5334X7U7',result:'pass',date:'7/17/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3prd59fe5cae5254ec7a872763a16f7eb82/og_bs0144932741efa144b8ab5878ad2dcb21a7/AI-9XC2AR8YF5334X7U7'}],
+    },
+  },
+  'Brian Bailey': {
+    '2026-07 H1': {
+      'Application Review': [],
+      'TM Alert': [{id:'A-6RPN5FTDGCGJNCZ29Y',result:'pass',date:'7/15/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-6RPN5FTDGCGJNCZ29Y?accountHolderId=og_ah0203zk6dccuxqsq37a31sb9qd06ugiep8x'},{id:'A-7HHC5NAUQK7A9TBCLJ',result:'pass',date:'7/15/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-7HHC5NAUQK7A9TBCLJ?accountHolderId=og_ah02643f764320314729bdc8d2a8d20071a3'},{id:'A-99CQBTJB77AG9G6GLK',result:'pass',date:'7/15/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-99CQBTJB77AG9G6GLK?accountHolderId=og_ah02643f764320314729bdc8d2a8d20071a3'},{id:'A-9CZZPWTQWKUE3S2TXG',result:'pass',date:'7/15/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-9CZZPWTQWKUE3S2TXG?accountHolderId=og_ah0203zk6dccuxqsq37a31sb9qd06ugiep8x'},{id:'A-DHG5S6P3T3Z4LBS8K9',result:'pass',date:'7/15/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-DHG5S6P3T3Z4LBS8K9?accountHolderId=og_ah0251a8e17684de4bd7abdf90df206717a1'},{id:'A-HTAZNHZQE86MNE4DS8',result:'pass',date:'7/15/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-HTAZNHZQE86MNE4DS8?accountHolderId=og_ah0251a8e17684de4bd7abdf90df206717a1'},{id:'A-LUZ5RCCFN2ZUSYNVTZ',result:'pass',date:'7/15/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-LUZ5RCCFN2ZUSYNVTZ?accountHolderId=og_ah0203zk6dccuxqsq37a31sb9qd06ugiep8x'},{id:'A-SFLVEPCG9RB8UCHXWM',result:'pass',date:'7/15/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-SFLVEPCG9RB8UCHXWM?accountHolderId=og_ah0203zk6dccuxqsq37a31sb9qd06ugiep8x'},{id:'A-SYDGAHAXGP8S3S6YL3',result:'pass',date:'7/15/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-SYDGAHAXGP8S3S6YL3?accountHolderId=og_ah02643f764320314729bdc8d2a8d20071a3'},{id:'A-ZNY2CH69BQMHBPPJG2',result:'pass',date:'7/15/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-ZNY2CH69BQMHBPPJG2?accountHolderId=og_ah0203zk6dccuxqsq37a31sb9qd06ugiep8x'}],
+      'OFAC Screening': [],
+      'EDD': [],
+      'Investigation': [{id:'AI-FRY49VMBW6SUETYNU',result:'pass',date:'7/1/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3pr0d3399f1de2643899dd3d64613e50802/og_bs01b25c0c45eee742f78fb019d9a264fcc4/AI-FRY49VMBW6SUETYNU?accountHolderId=og_ah02963498b1b5804bbc9242bfca41806d04'},{id:'AI-HQVFTRUFAD2F359H6',result:'pass',date:'7/14/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3pr69a6392683814e20b794e83000d34b5e/og_bs01493d15994e54462c8f476b77b2c01954/AI-HQVFTRUFAD2F359H6?accountHolderId=og_ah026bd26f8db691411086d8d7b574b73345'},{id:'AI-QCXDB8RLA5HMCZLR2',result:'pass',date:'7/1/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3pr69a6392683814e20b794e83000d34b5e/og_bs01493d15994e54462c8f476b77b2c01954/AI-QCXDB8RLA5HMCZLR2?accountHolderId=og_ah0271891e1c83c24ec89cccbe9d9c10d061'}],
+    },
+    '2026-07 H2': {
+      'Application Review': [],
+      'TM Alert': [{id:'A-99WAVRDQWVCPSWSB8L',result:'pass',date:'7/31/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-99WAVRDQWVCPSWSB8L'},{id:'A-7RS54RUK33B9LJC2A5',result:'pass',date:'7/31/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-7RS54RUK33B9LJC2A5'},{id:'A-QHD3UCATD9YK3FKCTW',result:'pass',date:'7/31/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-QHD3UCATD9YK3FKCTW'},{id:'A-23M6TUU88QNT732AFZ',result:'pass',date:'7/31/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-23M6TUU88QNT732AFZ'},{id:'A-T4789QMUB7YMAQ9X7Z',result:'pass',date:'7/17/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-T4789QMUB7YMAQ9X7Z'},{id:'A-FY3AF5TRW2CN5K94GC',result:'pass',date:'7/31/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-FY3AF5TRW2CN5K94GC'},{id:'A-9M5PLM43CUV6KXYX2S',result:'pass',date:'7/31/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-9M5PLM43CUV6KXYX2S'},{id:'A-Y6A4T6AUSZTQSB7PS2',result:'pass',date:'7/31/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-Y6A4T6AUSZTQSB7PS2'},{id:'A-B4R369AHFQBVDJVT6F',result:'pass',date:'7/31/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-B4R369AHFQBVDJVT6F'},{id:'A-XYPNZHC6Z3SCRBVGMX',result:'pass',date:'7/31/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-XYPNZHC6Z3SCRBVGMX'}],
+      'OFAC Screening': [],
+      'EDD': [],
+      'Investigation': [{id:'AI-2LQ8DKAF84QBTWXND',result:'pass',date:'7/16/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3prd59fe5cae5254ec7a872763a16f7eb82/og_bs0144932741efa144b8ab5878ad2dcb21a7/AI-2LQ8DKAF84QBTWXND'},{id:'AI-MMEQ4EHNHTKHQXBBF',result:'pass',date:'7/30/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3prd59fe5cae5254ec7a872763a16f7eb82/og_bs0144932741efa144b8ab5878ad2dcb21a7/AI-MMEQ4EHNHTKHQXBBF'},{id:'AI-DTYSPZRD3EYNRKQGL',result:'pass',date:'7/28/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3prd59fe5cae5254ec7a872763a16f7eb82/og_bs0144932741efa144b8ab5878ad2dcb21a7/AI-DTYSPZRD3EYNRKQGL'}],
+    },
+  },
+};
+</script>
+</body>
+</html>
