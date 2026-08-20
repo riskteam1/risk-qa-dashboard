@@ -1085,7 +1085,7 @@ function renderMyCases(analyst){
       <td style="padding:8px 12px;border-bottom:1px solid #e1e0d9;color:#52514e;white-space:nowrap">${r.cat}</td>
       <td style="padding:8px 12px;border-bottom:1px solid #e1e0d9;color:#52514e;white-space:nowrap">${r.date}</td>
       <td style="padding:8px 12px;border-bottom:1px solid #e1e0d9">${badge(r.result)}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #e1e0d9;color:#52514e;max-width:280px;line-height:1.4">${r.comment||'<span style="color:#c3c2b7">—</span>'}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e1e0d9;color:#52514e;line-height:1.4;min-width:260px">${r.comment||'<span style="color:#c3c2b7">—</span>'}</td>
       <td style="padding:8px 12px;border-bottom:1px solid #e1e0d9;white-space:nowrap">${r.zd?`<a href="${r.zd}" target="_blank" style="font-size:11px;color:#2a78d6;text-decoration:none;font-weight:500">Open ↗</a>`:''}</td>
     </tr>`;
   });
