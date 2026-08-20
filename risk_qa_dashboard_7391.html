@@ -799,7 +799,7 @@ const FINDINGS = {
 };
 
 /* ══ STATE ══════════════════════════════════════════════════════════ */
-let WHO = null, ROLE = null, PERIOD = '2026-07 H1', FILTER = 'all';
+let WHO = null, ROLE = null, PERIOD = PERIODS[PERIODS.length-1], FILTER = 'all';
 let CH = {};
 
 /* ══ HELPERS ════════════════════════════════════════════════════════ */
@@ -975,6 +975,9 @@ document.getElementById('drill-overlay').addEventListener('click',e=>{if(e.targe
 /* ══ AUTH ═══════════════════════════════════════════════════════════ */
 function activateSession(name, role){
   WHO=name;ROLE=role;
+  // Sync dropdown to the most recent period on load
+  const sel=document.getElementById('period-sel');
+  if(sel) sel.value=PERIOD;
   document.getElementById('login').style.display='none';
   document.getElementById('app').style.display='block';
   document.getElementById('nav-name').textContent=name.split(' ')[0];
