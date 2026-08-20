@@ -798,6 +798,7 @@ function mgrTiles(){
   let ws2=0; ANALYSTS.forEach(a=>{CATEGORIES.forEach(c=>{const x=getdata(a,PERIOD,c);ws2+=(x.scoreSum!==undefined)?x.scoreSum:x.reviewed*100;})});
   const wa=r?ws2/r:0;
   const withMaj=ANALYSTS.filter(a=>summary(a,PERIOD).mj>0).length;
+  const withMn=ANALYSTS.filter(a=>summary(a,PERIOD).mn>0).length;
   document.getElementById('mgr-tiles').innerHTML=`
     <div class="tile" style="cursor:pointer" onclick="openDrillModal(null,null,'all')" title="Click to view all reviewed cases">
       <div class="tile-label">📋 Cases Reviewed</div>
@@ -817,7 +818,7 @@ function mgrTiles(){
     <div class="tile ${mn>0?'t-warn':'t-good'}" style="cursor:pointer" onclick="openDrillModal(null,null,'minor')" title="Click to view minor findings">
       <div class="tile-label">◎ Minor Findings</div>
       <div class="tile-val">${mn}</div>
-      <div class="tile-sub">Needs follow-up ↗</div>
+      <div class="tile-sub">${withMn} analyst${withMn!==1?'s':''} flagged ↗</div>
     </div>
     <div class="tile ${mj>0?'t-bad':'t-good'}" style="cursor:pointer" onclick="openDrillModal(null,null,'major')" title="Click to view major findings">
       <div class="tile-label">⚠ Major Findings</div>
