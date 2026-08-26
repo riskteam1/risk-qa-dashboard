@@ -447,7 +447,7 @@ const D = {
     '2026-06 H2': {'Application Review':{pass:9,minor:0,major:1,reviewed:10,scoreSum:987.5},'TM Alert':{pass:10,minor:0,major:0,reviewed:10},'OFAC Screening':{pass:4,minor:0,major:0,reviewed:4},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:0,minor:0,major:0,reviewed:0}},
     '2026-07 H1': {'Application Review':{pass:11,minor:0,major:0,reviewed:11},'TM Alert':{pass:10,minor:0,major:0,reviewed:10},'OFAC Screening':{pass:4,minor:0,major:0,reviewed:4},'EDD':{pass:1,minor:0,major:0,reviewed:1},'Investigation':{pass:0,minor:0,major:0,reviewed:0}},
     '2026-07 H2': {'Application Review':{pass:10,minor:0,major:2,reviewed:12,scoreSum:1137.5},'TM Alert':{pass:0,minor:0,major:0,reviewed:0},'OFAC Screening':{pass:4,minor:0,major:0,reviewed:4},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:3,minor:0,major:0,reviewed:3}},
-    '2026-08 H1': {'Application Review':{pass:11,minor:0,major:0,reviewed:11,scoreSum:1100},'TM Alert':{pass:0,minor:0,major:0,reviewed:0},'OFAC Screening':{pass:2,minor:0,major:0,reviewed:2,scoreSum:200},'EDD':{pass:1,minor:0,major:0,reviewed:1,scoreSum:100},'Investigation':{pass:1,minor:0,major:1,reviewed:2,scoreSum:150}},
+    '2026-08 H1': {'Application Review':{pass:12,minor:0,major:0,reviewed:12,scoreSum:1200},'TM Alert':{pass:0,minor:0,major:0,reviewed:0},'OFAC Screening':{pass:2,minor:0,major:0,reviewed:2,scoreSum:200},'EDD':{pass:1,minor:0,major:0,reviewed:1,scoreSum:100},'Investigation':{pass:1,minor:0,major:1,reviewed:2,scoreSum:150}},
   },
 };
 
@@ -532,6 +532,7 @@ const FINDINGS = {
     {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zrvq1q9k2hn1jvuj7l6254fnxnop2o',result:'pass',comment:'Notes are clear. They state that the applicant is 80 years of age. A document was not requested automatically; the analyst requested a license and utility bill from the application.'},
     {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zgsvakog7ex1jvogsl0v6bfdobcsc1',result:'pass',comment:'Notes detail that the application is being reviewed due to a duplicate SSN. The analyst reviewed the prior application and documented the denial reason. The analyst passed the risk verification on the new application. Documents were not uploaded for the analyst to review.'},
     {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zax2wpvfkqr1jv1amhfm2wknnifkhg',result:'pass',comment:'Notes are clear. They detail which document was provided, identified a typo in the document, and noted that it will be corrected. KYB was rerun per the analyst notes. The application was then approved. The document was approved.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zqfptobchdx1ju0v7cqqjjtkjvgkww',result:'pass',comment:'Notes detail the provided document and confirm a physical business address was verified on the document. The analyst noted that the business address would be corrected.'},
     {period:'2026-08 H1',cat:'EDD',caseId:'ap_22bcgm04z1qtiprocqx1jt9730bt3odocftjj7',result:'pass',comment:'Notes are clear and detail that EDD will be performed due to the applicant being a sole prop and their age. There were no documents for the analyst to review however a document upload session was opened for the applicant and an outreach was made to the subscriber. Reminder: notate the zd ticket number on the application when an outreach is made.'},
     {period:'2026-08 H1',cat:'OFAC Screening',caseId:'coifs_7575c73e01194671851bdbe8c1d8f5a3',result:'pass',comment:'Notes are clear and detail the outcome of the OFAC review. The potential matches were listed and compared against our account holder.'},
     {period:'2026-08 H1',cat:'OFAC Screening',caseId:'coifs_cbf08be44f1c400e8fd0d60156a7a4e9',result:'pass',comment:'Notes are clear and detail the outcome of the OFAC review. The potential matches were listed and compared against our account holder.'},
@@ -541,7 +542,7 @@ const FINDINGS = {
 };
 
 /* ══ STATE ══════════════════════════════════════════════════════════ */
-let WHO = null, ROLE = null, PERIOD = '2026-08 H1', FILTER = 'all';
+let WHO = null, ROLE = null, PERIOD = PERIODS[PERIODS.length-1], FILTER = 'all';
 let CH = {};
 
 /* ══ HELPERS ════════════════════════════════════════════════════════ */
@@ -1156,6 +1157,7 @@ const CASES = {
         {id:'ap_22bcgm04zrvq1q9k2hn1jvuj7l6254fnxnop2o',result:'pass',date:'8/14/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/145939'},
         {id:'ap_22bcgm04zgsvakog7ex1jvogsl0v6bfdobcsc1',result:'pass',date:'8/11/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/145494'},
         {id:'ap_22bcgm04zax2wpvfkqr1jv1amhfm2wknnifkhg',result:'pass',date:'8/5/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/144576'},
+        {id:'ap_22bcgm04zqfptobchdx1ju0v7cqqjjtkjvgkww',result:'pass',date:'8/11/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/145487'},
       ],
       'TM Alert': [],
       'OFAC Screening': [

@@ -149,6 +149,9 @@ tbody tr:hover td{background:var(--surface-page)}
     <button id="nav-back" onclick="backToTeam()" style="display:none;align-items:center;gap:5px;padding:6px 12px;font-size:12px;font-weight:600;background:none;border:1px solid var(--baseline);border-radius:6px;color:var(--ink-2);cursor:pointer;white-space:nowrap">← Team View</button>
     <div class="nav-title">Risk QA Dashboard <span id="nav-sub"></span></div>
     <select class="nav-period" id="period-sel" onchange="onPeriodChange()">
+      <optgroup label="─── August 2026 ───">
+        <option value="2026-08 H1">Aug 2026 · H1  (1st – 15th)</option>
+      </optgroup>
       <optgroup label="─── July 2026 ───">
         <option value="2026-07">Jul 2026 · Full Month</option>
         <option value="2026-07 H1">Jul 2026 · H1  (1st – 15th)</option>
@@ -422,10 +425,11 @@ function renderAcknowledgment(analyst){
 /* ══ DATA ═══════════════════════════════════════════════════════════ */
 const ANALYSTS = ['Brian Bailey'];
 const CATEGORIES = ['Application Review','TM Alert','OFAC Screening','EDD','Investigation'];
-const PERIODS = ['2026-06 H1','2026-06 H2','2026-07 H1','2026-07 H2'];
+const PERIODS = ['2026-06 H1','2026-06 H2','2026-07 H1','2026-07 H2','2026-08 H1'];
 const MONTHLY = {
   '2026-06': ['2026-06 H1','2026-06 H2'],
   '2026-07': ['2026-07 H1','2026-07 H2'],
+  '2026-08': ['2026-08 H1'],
 };
 const COLORS = {
   'Jessica Henderson': '#2a78d6',
@@ -443,6 +447,7 @@ const D = {
     '2026-06 H2': {'Application Review':{pass:0,minor:0,major:0,reviewed:0},'TM Alert':{pass:10,minor:0,major:0,reviewed:10},'OFAC Screening':{pass:0,minor:0,major:0,reviewed:0},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:2,minor:0,major:0,reviewed:2}},
     '2026-07 H1': {'Application Review':{pass:0,minor:0,major:0,reviewed:0},'TM Alert':{pass:10,minor:0,major:0,reviewed:10},'OFAC Screening':{pass:0,minor:0,major:0,reviewed:0},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:3,minor:0,major:0,reviewed:3}},
     '2026-07 H2': {'Application Review':{pass:0,minor:0,major:0,reviewed:0},'TM Alert':{pass:10,minor:0,major:0,reviewed:10},'OFAC Screening':{pass:0,minor:0,major:0,reviewed:0},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:3,minor:0,major:0,reviewed:3}},
+    '2026-08 H1': {'Application Review':{pass:0,minor:0,major:1,reviewed:1,scoreSum:50},'TM Alert':{pass:12,minor:0,major:0,reviewed:12,scoreSum:1200},'OFAC Screening':{pass:0,minor:0,major:0,reviewed:0},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:4,minor:0,major:0,reviewed:4,scoreSum:400}},
   },
 };
 
@@ -480,11 +485,29 @@ const FINDINGS = {
     {period:'2026-07 H2',cat:'TM Alert',caseId:'A-Y6A4T6AUSZTQSB7PS2',result:'pass',comment:''},
     {period:'2026-07 H2',cat:'TM Alert',caseId:'TM (ACH HOLD): A-B4R369AHFQBVDJVT6F',result:'pass',comment:''},
     {period:'2026-07 H2',cat:'TM Alert',caseId:'TM(ACH HOLD): A-XYPNZHC6Z3SCRBVGMX',result:'pass',comment:''},
+  
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zmnocu68cfr1jv4ahr6uu3qc7uw48h',result:'major',comment:'The decision to pass the risk verification was incorrect. The address listed for the business is a virtual office; this application should not have passed risk verification. We should have denied this application and left a subscriber-facing note for the applicant to reapply with their physical business address.'},
+    {period:'2026-08 H1',cat:'TM Alert',caseId:'A-CQWU9ZY7XFENTATX3K',result:'pass',comment:''},
+    {period:'2026-08 H1',cat:'TM Alert',caseId:'A-T7B2TVTFBP9M6RW4RF',result:'pass',comment:''},
+    {period:'2026-08 H1',cat:'TM Alert',caseId:'A-NTWZY9MCSUVNJJPLHL',result:'pass',comment:''},
+    {period:'2026-08 H1',cat:'TM Alert',caseId:'A-KH75D62AYRWFYQ4NDA',result:'pass',comment:''},
+    {period:'2026-08 H1',cat:'TM Alert',caseId:'M-HG4U2KWRTVY2GVCR86',result:'pass',comment:''},
+    {period:'2026-08 H1',cat:'TM Alert',caseId:'A-LKSLZM3X75J8KLZ9UV',result:'pass',comment:''},
+    {period:'2026-08 H1',cat:'TM Alert',caseId:'A-MBPM7L5Y3E7VZCXLFP',result:'pass',comment:''},
+    {period:'2026-08 H1',cat:'TM Alert',caseId:'A-ECJ6HHQGYSJYWJKLBY',result:'pass',comment:''},
+    {period:'2026-08 H1',cat:'TM Alert',caseId:'A-XPUT43HCU8GF6ZPE6D',result:'pass',comment:''},
+    {period:'2026-08 H1',cat:'TM Alert',caseId:'A-HHN9JL882ZD95X5ZYP',result:'pass',comment:''},
+    {period:'2026-08 H1',cat:'TM Alert',caseId:'A-BM3P9VK6PZDLKS4EXN',result:'pass',comment:''},
+    {period:'2026-08 H1',cat:'TM Alert',caseId:'A-4RSXGNFUZGSCX3B5BV',result:'pass',comment:''},
+    {period:'2026-08 H1',cat:'Investigation',caseId:'AI-E9K63SUH95HCWFDQX',result:'pass',comment:'Investigation notes are clear and detail the reason the investigation was opened. Spends on the cards were identified as coming from a known fraudulent merchant. The analyst notified the subscriber of the card closures, blocked the MID, and issued a new card. Reminder to notate the Zendesk # and if a UAR or QAR was required. The correct disposition was made.'},
+    {period:'2026-08 H1',cat:'Investigation',caseId:'AI-BZG2M8H8L9HY9QEZ5',result:'pass',comment:'Investigation notes are great! Clear notes that detail why the investigation was opened. The account was suspended and the subscriber was notified. The Zendesk ticket was included in the investigation notes. The analyst followed up with Mudflap about closing the account due to no response. The correct disposition was selected. Reminder to notate if a UAR or QAR was filed.'},
+    {period:'2026-08 H1',cat:'Investigation',caseId:'AI-K29J2DLMAKHQTMMDZ',result:'pass',comment:'Notes detail why an investigation was opened. An outreach to the subscriber was made and the Zendesk ticket was included in the investigation notes. Mudflap confirmed a legitimate relationship between the accounts with a duplicate bank account linked and ownership was confirmed. The correct disposition was made. Reminder to notate if a QAR/UAR was filed.'},
+    {period:'2026-08 H1',cat:'Investigation',caseId:'AI-69F3KMDWX62XZ489D',result:'pass',comment:'Investigation notes are clear and detail the reason the investigation was opened. Spend on the card was identified as coming from a known fraudulent merchant. The analyst notified the subscriber of the card closure, blocked the MID, and issued a new card. Reminder to notate the Zendesk # and if a UAR or QAR was required. The correct disposition was made.'},
   ],
 };
 
 /* ══ STATE ══════════════════════════════════════════════════════════ */
-let WHO = null, ROLE = null, PERIOD = '2026-07 H2', FILTER = 'all';
+let WHO = null, ROLE = null, PERIOD = PERIODS[PERIODS.length-1], FILTER = 'all';
 let CH = {};
 
 /* ══ HELPERS ════════════════════════════════════════════════════════ */
@@ -938,7 +961,7 @@ function renderAna(analyst){
   const hasReviews=summary(analyst,PERIOD).r>0;
   const ff=allFF.filter(f=>f.result==='major'||f.result==='minor');
   const ffDisplay=allFF.filter(f=>f.result==='major'||f.result==='minor');
-  const notesNeed   =ff.some(f=>/\breminder\b|notes?\s+(?:do(?:es)?|did)\s+not|not\s+(?:document(?:ed)?|notat(?:ed)?|mention(?:ed)?|includ(?:ed)?|specif(?:y|ied)?|record(?:ed)?|detail(?:ed)?|not(?:ed)?)/i.test(f.comment));
+  const notesNeed   =ff.some(f=>/\breminder\b|should\s+have[^.]*\bnotes?\b|notes?\s+(?:do(?:es)?|did)\s+not|not\s+(?:document(?:ed)?|notat(?:ed)?|mention(?:ed)?|includ(?:ed)?|specif(?:y|ied)?|record(?:ed)?|detail(?:ed)?|not(?:ed)?)/i.test(f.comment));
   const decisionNeed=(()=>{const dp=/should not have been\s+(?:approved|denied|closed|flagged|rejected|escalated|suspended|dispositioned|requested)|should have been\s+(?:approved|denied|closed|flagged|rejected|escalated|suspended|dispositioned|requested)|incorrectly?\s+(?:approved|denied|closed|dispositioned|flagged|passed|escalated|suspended)|incorrect\s+decision|\bdecision\b[^.]*\b(?:was|were|is)\s+incorrect|is not (?:closed|open(?:ed)?)|still (?:suspended|open)/i;const np=/\breminder\b|notes?\s+(?:do(?:es)?|did)\s+not|not\s+(?:document(?:ed)?|notat(?:ed)?|mention(?:ed)?|includ(?:ed)?|specif(?:y|ied)?|record(?:ed)?|detail(?:ed)?|not(?:ed)?)/i;return ff.some(f=>f.result==='major'&&['Application Review','OFAC Screening','TM Alert','Investigation'].includes(f.cat)&&(dp.test(f.comment)||!np.test(f.comment)));})();
   const ddNeed      =ff.some(f=>f.result==='major'&&['EDD'].includes(f.cat));
   const slaNeed     =ff.some(f=>/SLA not met|no extension documented|exceeded.*SLA/i.test(f.comment));
@@ -1158,6 +1181,31 @@ const CASES = {
       'OFAC Screening': [],
       'EDD': [],
       'Investigation': [{id:'AI-2LQ8DKAF84QBTWXND',result:'pass',date:'7/16/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3prd59fe5cae5254ec7a872763a16f7eb82/og_bs0144932741efa144b8ab5878ad2dcb21a7/AI-2LQ8DKAF84QBTWXND'},{id:'AI-MMEQ4EHNHTKHQXBBF',result:'pass',date:'7/30/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3prd59fe5cae5254ec7a872763a16f7eb82/og_bs0144932741efa144b8ab5878ad2dcb21a7/AI-MMEQ4EHNHTKHQXBBF'},{id:'AI-DTYSPZRD3EYNRKQGL',result:'pass',date:'7/28/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3prd59fe5cae5254ec7a872763a16f7eb82/og_bs0144932741efa144b8ab5878ad2dcb21a7/AI-DTYSPZRD3EYNRKQGL'}],
+    },
+    '2026-08 H1': {
+      'Application Review': [{id:'ap_22bcgm04zmnocu68cfr1jv4ahr6uu3qc7uw48h',result:'major',date:'8/3/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/144451'}],
+      'TM Alert': [
+        {id:'A-CQWU9ZY7XFENTATX3K',result:'pass',date:'8/10/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3pr6ed9527da0234d58bc3a5ea66f00a206/og_bs0178957813f79a454fb9c60677766bcb0e/A-CQWU9ZY7XFENTATX3K?accountHolderId=og_ah02db8228adf78c4797940285f340bf4fca'},
+        {id:'A-T7B2TVTFBP9M6RW4RF',result:'pass',date:'8/10/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3pr6ed9527da0234d58bc3a5ea66f00a206/og_bs0178957813f79a454fb9c60677766bcb0e/A-T7B2TVTFBP9M6RW4RF?accountHolderId=og_ah02128728264ef948a89639a00464f4470c'},
+        {id:'A-NTWZY9MCSUVNJJPLHL',result:'pass',date:'8/10/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3pr6ed9527da0234d58bc3a5ea66f00a206/og_bs0178957813f79a454fb9c60677766bcb0e/A-NTWZY9MCSUVNJJPLHL?accountHolderId=og_ah0204z1gtnphi2kj1jn7s22minurrrrm551'},
+        {id:'A-KH75D62AYRWFYQ4NDA',result:'pass',date:'8/10/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3pr6ed9527da0234d58bc3a5ea66f00a206/og_bs0178957813f79a454fb9c60677766bcb0e/A-KH75D62AYRWFYQ4NDA?accountHolderId=og_ah02128728264ef948a89639a00464f4470c'},
+        {id:'M-HG4U2KWRTVY2GVCR86',result:'pass',date:'8/10/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3pr4c04258cd9e2457c9f5b9138be462aeb/og_bs013f9cc675f2054cf5b224866ee587e746/M-HG4U2KWRTVY2GVCR86?accountHolderId=ps_ah017e576162772b4a23ad40364420efb97f'},
+        {id:'A-LKSLZM3X75J8KLZ9UV',result:'pass',date:'8/10/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3pr4c04258cd9e2457c9f5b9138be462aeb/og_bs013f9cc675f2054cf5b224866ee587e746/A-LKSLZM3X75J8KLZ9UV?accountHolderId=ps_ah01171d462307624d0d85b0778828a15fac'},
+        {id:'A-MBPM7L5Y3E7VZCXLFP',result:'pass',date:'8/11/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3pr4c04258cd9e2457c9f5b9138be462aeb/og_bs013f9cc675f2054cf5b224866ee587e746/A-MBPM7L5Y3E7VZCXLFP?accountHolderId=ps_ah0104zrt2wjt7t9h1jtlmbnckxer2bp4tre'},
+        {id:'A-ECJ6HHQGYSJYWJKLBY',result:'pass',date:'8/10/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3pr6ed9527da0234d58bc3a5ea66f00a206/og_bs0178957813f79a454fb9c60677766bcb0e/A-ECJ6HHQGYSJYWJKLBY?accountHolderId=og_ah0204z8rwmckpdnr1jn7r3k3lrv5uuhjjeu'},
+        {id:'A-XPUT43HCU8GF6ZPE6D',result:'pass',date:'8/10/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3pr6ed9527da0234d58bc3a5ea66f00a206/og_bs0178957813f79a454fb9c60677766bcb0e/A-XPUT43HCU8GF6ZPE6D?accountHolderId=og_ah0204z1gtnphi2kj1jn7s22minurrrrm551'},
+        {id:'A-HHN9JL882ZD95X5ZYP',result:'pass',date:'8/10/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3pr6ed9527da0234d58bc3a5ea66f00a206/og_bs0178957813f79a454fb9c60677766bcb0e/A-HHN9JL882ZD95X5ZYP?accountHolderId=og_ah0204z8rwmckpdnr1jn7r3k3lrv5uuhjjeu'},
+        {id:'A-BM3P9VK6PZDLKS4EXN',result:'pass',date:'8/10/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3pr6ed9527da0234d58bc3a5ea66f00a206/og_bs0178957813f79a454fb9c60677766bcb0e/A-BM3P9VK6PZDLKS4EXN?accountHolderId=og_ah0204z1gtnphi2kj1jn7s22minurrrrm551'},
+        {id:'A-4RSXGNFUZGSCX3B5BV',result:'pass',date:'8/11/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3pr4c04258cd9e2457c9f5b9138be462aeb/og_bs013f9cc675f2054cf5b224866ee587e746/A-4RSXGNFUZGSCX3B5BV?accountHolderId=ps_ah0103zxjaf6aum9ii4j41sc4vbfr64fjw8u'},
+      ],
+      'OFAC Screening': [],
+      'EDD': [],
+      'Investigation': [
+        {id:'AI-E9K63SUH95HCWFDQX',result:'pass',date:'8/10/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3pr4c04258cd9e2457c9f5b9138be462aeb/og_bs013f9cc675f2054cf5b224866ee587e746/AI-E9K63SUH95HCWFDQX?accountHolderId=ps_ah0104z49dq13dwr91jr153k6p44m8uavrsh'},
+        {id:'AI-BZG2M8H8L9HY9QEZ5',result:'pass',date:'8/3/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3prf7cbddc391914a6fa291785ce538ed02/og_bs01db5f0e4bd2b24a0ab486b19e9b5833f6/AI-BZG2M8H8L9HY9QEZ5?accountHolderId=og_ah02dc0aba01085c41ee925cf1c4437c4877'},
+        {id:'AI-K29J2DLMAKHQTMMDZ',result:'pass',date:'8/5/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3prf7cbddc391914a6fa291785ce538ed02/og_bs01db5f0e4bd2b24a0ab486b19e9b5833f6/AI-K29J2DLMAKHQTMMDZ?accountHolderId=og_ah0204zjnqwb6ka461jt2ib3gmbusoxoisn9'},
+        {id:'AI-69F3KMDWX62XZ489D',result:'pass',date:'8/10/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3pr4c04258cd9e2457c9f5b9138be462aeb/og_bs013f9cc675f2054cf5b224866ee587e746/AI-69F3KMDWX62XZ489D?accountHolderId=ps_ah017e576162772b4a23ad40364420efb97f'},
+      ],
     },
   },
 };
