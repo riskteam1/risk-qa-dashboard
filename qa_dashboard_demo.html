@@ -1004,9 +1004,38 @@ function renderAna(analyst){
   renderAcknowledgment(analyst);
   fetchAndRenderSignOffs(analyst); // async: updates card if sheet has a prior sign-off
 
-  // Findings — only show major/minor in Recent Feedback; pass notes appear in My Reviewed Cases table
-  const ff=getfindings(analyst,PERIOD).filter(f=>f.result==='major'||f.result==='minor');
-  document.getElementById('ana-findings').innerHTML=ff.length?ff.map(f=>{
+  // ── Feedback summary table ─────────────────────────────────────────
+  const allFF=getfindings(analyst,PERIOD);
+  const hasReviews=summary(analyst,PERIOD).r>0;
+  const ff=allFF.filter(f=>f.result==='major'||f.result==='minor');
+  const notesNeed   =ff.some(f=>/\breminder\b|notes?\s+(?:do(?:es)?|did)\s+not|not\s+(?:document(?:ed)?|notat(?:ed)?|mention(?:ed)?|includ(?:ed)?|specif(?:y|ied)?|record(?:ed)?|detail(?:ed)?|not(?:ed)?)/i.test(f.comment));
+  const decisionNeed=(()=>{const dp=/should not have been\s+(?:approved|denied|closed|flagged|rejected|escalated|suspended|dispositioned|requested)|should have been\s+(?:approved|denied|closed|flagged|rejected|escalated|suspended|dispositioned|requested)|incorrectly?\s+(?:approved|denied|closed|dispositioned|flagged|passed|escalated|suspended)|incorrect\s+decision|\bdecision\b[^.]*\b(?:was|were|is)\s+incorrect|is not (?:closed|open(?:ed)?)|still (?:suspended|open)/i;const np=/\breminder\b|notes?\s+(?:do(?:es)?|did)\s+not|not\s+(?:document(?:ed)?|notat(?:ed)?|mention(?:ed)?|includ(?:ed)?|specif(?:y|ied)?|record(?:ed)?|detail(?:ed)?|not(?:ed)?)/i;return ff.some(f=>f.result==='major'&&['Application Review','OFAC Screening','TM Alert','Investigation'].includes(f.cat)&&(dp.test(f.comment)||!np.test(f.comment)));})();
+  const ddNeed      =ff.some(f=>f.result==='major'&&['EDD'].includes(f.cat));
+  const slaNeed     =ff.some(f=>/SLA not met|no extension documented|exceeded.*SLA/i.test(f.comment));
+  const fbDims=[
+    {label:'Case Notes and Documentation',need:notesNeed},
+    {label:'Decisioning Accuracy',        need:decisionNeed},
+    {label:'Due Diligence and Analysis',  need:ddNeed},
+    {label:'Timeliness and SLA Adherence',need:slaNeed},
+  ];
+  const fbTable=hasReviews?`<div style="margin-bottom:20px">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);margin-bottom:10px">Performance Summary</div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr style="background:var(--surface-page)">
+        <th style="padding:9px 12px;text-align:left;border:1px solid var(--grid);font-weight:600;color:var(--ink-2);font-size:12px;width:56%"></th>
+        <th style="padding:9px 12px;text-align:center;border:1px solid var(--grid);font-weight:600;color:var(--ink-2);font-size:12px">Areas of Strength</th>
+        <th style="padding:9px 12px;text-align:center;border:1px solid var(--grid);font-weight:600;color:var(--ink-2);font-size:12px">Areas for Improvement</th>
+      </tr></thead>
+      <tbody>${fbDims.map(d=>`<tr>
+        <td style="padding:9px 12px;border:1px solid var(--grid);color:var(--ink-1)">${d.label}</td>
+        <td style="padding:9px 12px;border:1px solid var(--grid);text-align:center">${!d.need?'<span style="color:#0ca30c;font-size:15px;font-weight:700">✓</span>':'<span style="color:var(--baseline);font-size:13px">☐</span>'}</td>
+        <td style="padding:9px 12px;border:1px solid var(--grid);text-align:center">${d.need?'<span style="color:var(--critical);font-size:15px;font-weight:700">✓</span>':'<span style="color:var(--baseline);font-size:13px">☐</span>'}</td>
+      </tr>`).join('')}</tbody>
+    </table>
+  </div>`:'';
+
+  // ── Individual findings (minor / major only) ────────────────────────
+  const findingsHtml=ff.length?`<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);margin-bottom:10px">Finding Details</div>`+ff.map(f=>{
     const rc=f.result==='major'?'major':'minor';
     const rl=f.result==='major'?'⚠ Major Finding':'◎ Minor Finding';
     return `<div class="finding">
@@ -1018,7 +1047,11 @@ function renderAna(analyst){
       </div>
       <div class="finding-comment">${f.comment}</div>
     </div>`;
-  }).join(''):'<div class="empty">No findings on record for this period.</div>';
+  }).join(''):`<div style="font-size:13px;color:var(--ink-muted);margin-top:2px">No minor or major findings this period — great work!</div>`;
+
+  document.getElementById('ana-findings').innerHTML=hasReviews
+    ?(fbTable+findingsHtml)
+    :'<div class="empty">No reviews on record for this period.</div>';
 }
 
 /* ══ MY REVIEWED CASES ══════════════════════════════════════════════ */

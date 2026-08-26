@@ -165,9 +165,12 @@ tbody tr:hover td{background:var(--surface-page)}
     <button id="nav-back" onclick="backToTeam()" style="display:none;align-items:center;gap:5px;padding:6px 12px;font-size:12px;font-weight:600;background:none;border:1px solid var(--baseline);border-radius:6px;color:var(--ink-2);cursor:pointer;white-space:nowrap">← Team View</button>
     <div class="nav-title">Risk QA Dashboard <span id="nav-sub"></span></div>
     <select class="nav-period" id="period-sel" onchange="onPeriodChange()">
+      <optgroup label="─── August 2026 ───">
+        <option value="2026-08 H1" selected>Aug 2026 · H1  (1st – 15th)</option>
+      </optgroup>
       <optgroup label="─── July 2026 ───">
         <option value="2026-07">Jul 2026 · Full Month</option>
-        <option value="2026-07 H1" selected>Jul 2026 · H1  (1st – 15th)</option>
+        <option value="2026-07 H1">Jul 2026 · H1  (1st – 15th)</option>
         <option value="2026-07 H2">Jul 2026 · H2  (16th – 31st)</option>
       </optgroup>
       <optgroup label="─── June 2026 ───">
@@ -458,10 +461,11 @@ function renderAcknowledgment(analyst){
 /* ══ DATA ═══════════════════════════════════════════════════════════ */
 const ANALYSTS = ['Jessica Henderson','Shantazha Boazman','Sidney Love','Rene Ike','Saedika Chambers','Brian Bailey'];
 const CATEGORIES = ['Application Review','TM Alert','OFAC Screening','EDD','Investigation'];
-const PERIODS = ['2026-06 H1','2026-06 H2','2026-07 H1','2026-07 H2'];
+const PERIODS = ['2026-06 H1','2026-06 H2','2026-07 H1','2026-07 H2','2026-08 H1'];
 const MONTHLY = {
   '2026-06': ['2026-06 H1','2026-06 H2'],
   '2026-07': ['2026-07 H1','2026-07 H2'],
+  '2026-08': ['2026-08 H1'],
 };
 const COLORS = {
   'Jessica Henderson': '#2a78d6',
@@ -479,36 +483,42 @@ const D = {
     '2026-06 H2': {'Application Review':{pass:9,minor:0,major:1,reviewed:10,scoreSum:987.5},'TM Alert':{pass:10,minor:0,major:0,reviewed:10},'OFAC Screening':{pass:4,minor:0,major:0,reviewed:4},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:0,minor:0,major:0,reviewed:0}},
     '2026-07 H1': {'Application Review':{pass:11,minor:0,major:0,reviewed:11},'TM Alert':{pass:10,minor:0,major:0,reviewed:10},'OFAC Screening':{pass:4,minor:0,major:0,reviewed:4},'EDD':{pass:1,minor:0,major:0,reviewed:1},'Investigation':{pass:0,minor:0,major:0,reviewed:0}},
     '2026-07 H2': {'Application Review':{pass:10,minor:0,major:2,reviewed:12,scoreSum:1137.5},'TM Alert':{pass:0,minor:0,major:0,reviewed:0},'OFAC Screening':{pass:4,minor:0,major:0,reviewed:4},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:3,minor:0,major:0,reviewed:3}},
+    '2026-08 H1': {'Application Review':{pass:12,minor:0,major:0,reviewed:12,scoreSum:1200},'TM Alert':{pass:0,minor:0,major:0,reviewed:0},'OFAC Screening':{pass:2,minor:0,major:0,reviewed:2,scoreSum:200},'EDD':{pass:1,minor:0,major:0,reviewed:1,scoreSum:100},'Investigation':{pass:1,minor:1,major:0,reviewed:2,scoreSum:175}},
   },
   'Shantazha Boazman': {
     '2026-06 H1': {'Application Review':{pass:7,minor:0,major:1,reviewed:8,scoreSum:775},'TM Alert':{pass:0,minor:0,major:0,reviewed:0},'OFAC Screening':{pass:0,minor:0,major:0,reviewed:0},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:0,minor:0,major:0,reviewed:0}},
     '2026-06 H2': {'Application Review':{pass:0,minor:0,major:0,reviewed:0},'TM Alert':{pass:0,minor:0,major:0,reviewed:0},'OFAC Screening':{pass:0,minor:0,major:0,reviewed:0},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:0,minor:0,major:1,reviewed:1,scoreSum:75}},
     '2026-07 H1': {'Application Review':{pass:0,minor:0,major:0,reviewed:0},'TM Alert':{pass:0,minor:0,major:0,reviewed:0},'OFAC Screening':{pass:0,minor:0,major:0,reviewed:0},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:0,minor:0,major:0,reviewed:0}},
     '2026-07 H2': {'Application Review':{pass:0,minor:0,major:0,reviewed:0},'TM Alert':{pass:0,minor:0,major:0,reviewed:0},'OFAC Screening':{pass:0,minor:0,major:0,reviewed:0},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:0,minor:0,major:0,reviewed:0}},
+    '2026-08 H1': {'Application Review':{pass:0,minor:0,major:0,reviewed:0},'TM Alert':{pass:0,minor:0,major:0,reviewed:0},'OFAC Screening':{pass:0,minor:0,major:0,reviewed:0},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:0,minor:0,major:0,reviewed:0}},
   },
   'Sidney Love': {
     '2026-06 H1': {'Application Review':{pass:5,minor:0,major:3,reviewed:8,scoreSum:725},'TM Alert':{pass:0,minor:0,major:0,reviewed:0},'OFAC Screening':{pass:0,minor:0,major:0,reviewed:0},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:0,minor:0,major:0,reviewed:0}},
     '2026-06 H2': {'Application Review':{pass:12,minor:0,major:4,reviewed:16,scoreSum:1500},'TM Alert':{pass:1,minor:0,major:0,reviewed:1},'OFAC Screening':{pass:5,minor:0,major:1,reviewed:6,scoreSum:500},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:0,minor:0,major:0,reviewed:0}},
     '2026-07 H1': {'Application Review':{pass:19,minor:0,major:4,reviewed:23,scoreSum:2225},'TM Alert':{pass:0,minor:0,major:0,reviewed:0},'OFAC Screening':{pass:5,minor:0,major:1,reviewed:6,scoreSum:575},'EDD':{pass:1,minor:0,major:0,reviewed:1},'Investigation':{pass:1,minor:0,major:0,reviewed:1}},
     '2026-07 H2': {'Application Review':{pass:11,minor:0,major:1,reviewed:12,scoreSum:1175},'TM Alert':{pass:0,minor:0,major:0,reviewed:0},'OFAC Screening':{pass:4,minor:0,major:0,reviewed:4},'EDD':{pass:1,minor:0,major:0,reviewed:1},'Investigation':{pass:0,minor:0,major:0,reviewed:0}},
+    '2026-08 H1': {'Application Review':{pass:12,minor:1,major:2,reviewed:15,scoreSum:1375},'TM Alert':{pass:0,minor:0,major:0,reviewed:0},'OFAC Screening':{pass:2,minor:0,major:0,reviewed:2},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:0,minor:0,major:0,reviewed:0}},
   },
   'Rene Ike': {
     '2026-06 H1': {'Application Review':{pass:0,minor:0,major:0,reviewed:0},'TM Alert':{pass:0,minor:0,major:0,reviewed:0},'OFAC Screening':{pass:0,minor:0,major:0,reviewed:0},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:0,minor:0,major:0,reviewed:0}},
     '2026-06 H2': {'Application Review':{pass:0,minor:0,major:0,reviewed:0},'TM Alert':{pass:10,minor:0,major:0,reviewed:10},'OFAC Screening':{pass:0,minor:0,major:0,reviewed:0},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:1,minor:0,major:0,reviewed:1}},
     '2026-07 H1': {'Application Review':{pass:0,minor:0,major:0,reviewed:0},'TM Alert':{pass:10,minor:0,major:0,reviewed:10},'OFAC Screening':{pass:1,minor:0,major:0,reviewed:1},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:1,minor:0,major:2,reviewed:3,scoreSum:262.5}},
     '2026-07 H2': {'Application Review':{pass:0,minor:0,major:0,reviewed:0},'TM Alert':{pass:10,minor:0,major:0,reviewed:10},'OFAC Screening':{pass:1,minor:0,major:0,reviewed:1},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:3,minor:0,major:0,reviewed:3}},
+    '2026-08 H1': {'Application Review':{pass:0,minor:0,major:0,reviewed:0},'TM Alert':{pass:0,minor:0,major:0,reviewed:0},'OFAC Screening':{pass:0,minor:0,major:0,reviewed:0},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:0,minor:0,major:0,reviewed:0}},
   },
   'Saedika Chambers': {
     '2026-06 H1': {'Application Review':{pass:0,minor:0,major:0,reviewed:0},'TM Alert':{pass:0,minor:0,major:0,reviewed:0},'OFAC Screening':{pass:0,minor:0,major:0,reviewed:0},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:0,minor:0,major:0,reviewed:0}},
     '2026-06 H2': {'Application Review':{pass:0,minor:0,major:0,reviewed:0},'TM Alert':{pass:10,minor:0,major:0,reviewed:10},'OFAC Screening':{pass:0,minor:0,major:0,reviewed:0},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:1,minor:0,major:0,reviewed:1}},
     '2026-07 H1': {'Application Review':{pass:0,minor:0,major:0,reviewed:0},'TM Alert':{pass:11,minor:0,major:0,reviewed:11},'OFAC Screening':{pass:0,minor:0,major:0,reviewed:0},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:3,minor:0,major:0,reviewed:3}},
     '2026-07 H2': {'Application Review':{pass:0,minor:0,major:0,reviewed:0},'TM Alert':{pass:10,minor:0,major:0,reviewed:10},'OFAC Screening':{pass:0,minor:0,major:0,reviewed:0},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:3,minor:0,major:0,reviewed:3}},
+    '2026-08 H1': {'Application Review':{pass:0,minor:0,major:0,reviewed:0},'TM Alert':{pass:0,minor:0,major:0,reviewed:0},'OFAC Screening':{pass:0,minor:0,major:0,reviewed:0},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:0,minor:0,major:0,reviewed:0}},
   },
   'Brian Bailey': {
     '2026-06 H1': {'Application Review':{pass:0,minor:0,major:0,reviewed:0},'TM Alert':{pass:0,minor:0,major:0,reviewed:0},'OFAC Screening':{pass:0,minor:0,major:0,reviewed:0},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:0,minor:0,major:0,reviewed:0}},
     '2026-06 H2': {'Application Review':{pass:0,minor:0,major:0,reviewed:0},'TM Alert':{pass:10,minor:0,major:0,reviewed:10},'OFAC Screening':{pass:0,minor:0,major:0,reviewed:0},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:2,minor:0,major:0,reviewed:2}},
     '2026-07 H1': {'Application Review':{pass:0,minor:0,major:0,reviewed:0},'TM Alert':{pass:10,minor:0,major:0,reviewed:10},'OFAC Screening':{pass:0,minor:0,major:0,reviewed:0},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:3,minor:0,major:0,reviewed:3}},
     '2026-07 H2': {'Application Review':{pass:0,minor:0,major:0,reviewed:0},'TM Alert':{pass:10,minor:0,major:0,reviewed:10},'OFAC Screening':{pass:0,minor:0,major:0,reviewed:0},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:3,minor:0,major:0,reviewed:3}},
+    '2026-08 H1': {'Application Review':{pass:0,minor:0,major:0,reviewed:0},'TM Alert':{pass:0,minor:0,major:0,reviewed:0},'OFAC Screening':{pass:0,minor:0,major:0,reviewed:0},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:0,minor:0,major:0,reviewed:0}},
   },
 };
 
@@ -592,6 +602,23 @@ const FINDINGS = {
     {period:'2026-07 H2',cat:'OFAC Screening',caseId:'coifs_81fb8dea8489456d9236a3c9a1079864',result:'pass',comment:'Notes are clear and detail the outcome of the OFAC review. The potential matches were listed and compared against our applicant. | Yes, the application and OFAC flag were reviewed by the analyst on the same day as the match date.'},
     {period:'2026-07 H2',cat:'OFAC Screening',caseId:'coifs_fc1b7e8fbf0b4f21b43b00445b44735e',result:'pass',comment:'Notes are clear and detail the outcome of the OFAC review. The potential matches were listed and compared against our applicant. | Yes, the application and OFAC flag were reviewed by the analyst on the same day as the match date.'},
     {period:'2026-07 H2',cat:'OFAC Screening',caseId:'coifs_2cd786820cf4413cae456a36aef0e965',result:'pass',comment:'Notes are clear and detail the outcome of the OFAC review. The potential matches were listed and compared against our account holder. | Yes, the application and OFAC flag were reviewed by the analyst on the same day as the match date.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zqfptobchdx1ju0v7cqqjjtkjvgkww',result:'pass',comment:'Notes detail the provided document and confirm a physical business address was verified on the document. The analyst noted that the business address would be corrected.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zw837c483261jveub6ojep7rwnvjg3',result:'pass',comment:'Notes are clear and detail that the application is being reviewed due to a duplicate SSN. The analyst noted that the applicant had an approved application for the business and pap and linked the application ID in their notes. This application was denied as a duplicate. Documents were not uploaded for the analyst to review.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04z6rog45ruaq1jvrfsut65n2wqsf58q',result:'pass',comment:'Notes indicate the application is being reviewed because of a duplicate SSN. The analyst reviewed the prior application and documented the denial reason. The analyst passed the risk verification on the new application. Documents were not uploaded for the analyst to review.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04z7m5k48ofbi1jvr8egrtgiku4v6noo',result:'pass',comment:'Notes are clear and detail that the application is being reviewed due to a duplicate SSN. The analyst reviewed the prior application and documented the denial reason. The analyst passed the risk verification on the new application. Documents were not uploaded for the analyst to review.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zhbdwg1cbhg1jvu6gov8ehjrpcj8sn',result:'pass',comment:'The Zendesk ticket was closed with the decision "Additional Doc Needed". There is an open doc session for the PAP so the analyst could not disposition the application. There was nothing to do on this application since there was still an open document session for the PAP.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04ztrd37h3xna1jv4u5da9kmc1u2x2f7',result:'pass',comment:'Notes detail that the application is being reviewed due to a duplicate SSN. The analyst reviewed the prior application and documented the denial reason. The analyst passed the risk verification on the new application. Documents were not uploaded for the analyst to review.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zxg735hoe7i1jvq5cfckv71d4rtpk4',result:'pass',comment:'Notes are clear and detail the outcome of the OFAC review. The potential matches were listed and compared against our account holder. Documents were not uploaded for the analyst to review.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zd5oaw54pui1jvnf6p72qinjsks9h8',result:'pass',comment:'Notes detail that the application is being reviewed due to a duplicate SSN/EIN. The analyst reviewed the prior application and documented the denial reason. The analyst passed the risk verification on the new application. Documents were not uploaded for the analyst to review.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zp2gmifmsp51jvru91512vmr2xbj4n',result:'pass',comment:'Notes detail that the application is being reviewed due to a duplicate EIN. The analyst reviewed the prior application and documented the denial reason. The analyst passed the risk verification on the new application. Documents were not uploaded for the analyst to review.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zrvq1q9k2hn1jvuj7l6254fnxnop2o',result:'pass',comment:'Notes are clear. They state that the applicant is 80 years of age. A document was not requested automatically; the analyst requested a license and utility bill from the application.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zgsvakog7ex1jvogsl0v6bfdobcsc1',result:'pass',comment:'Notes detail that the application is being reviewed due to a duplicate SSN. The analyst reviewed the prior application and documented the denial reason. The analyst passed the risk verification on the new application. Documents were not uploaded for the analyst to review.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zax2wpvfkqr1jv1amhfm2wknnifkhg',result:'pass',comment:'Notes are clear. They detail which document was provided, identified a typo in the document, and noted that it will be corrected. KYB was rerun per the analyst notes. The application was then approved. The document was approved.'},
+    {period:'2026-08 H1',cat:'EDD',caseId:'ap_22bcgm04z1qtiprocqx1jt9730bt3odocftjj7',result:'pass',comment:'Notes are clear and detail that EDD will be performed due to the applicant being a sole prop and their age. There were no documents for the analyst to review however a document upload session was opened for the applicant and an outreach was made to the subscriber. Reminder: notate the zd ticket number on the application when an outreach is made.'},
+    {period:'2026-08 H1',cat:'OFAC Screening',caseId:'coifs_7575c73e01194671851bdbe8c1d8f5a3',result:'pass',comment:'Notes are clear and detail the outcome of the OFAC review. The potential matches were listed and compared against our account holder.'},
+    {period:'2026-08 H1',cat:'OFAC Screening',caseId:'coifs_cbf08be44f1c400e8fd0d60156a7a4e9',result:'pass',comment:'Notes are clear and detail the outcome of the OFAC review. The potential matches were listed and compared against our account holder.'},
+    {period:'2026-08 H1',cat:'Investigation',caseId:'AI-7YW2R22XRPY3XKRRD',result:'pass',comment:'Notes detail why the investigation was opened. The investigation was dispositioned correctly as Closed due to no response. The analyst reached out to the subscriber with questions regarding the account and followed up with the subscriber notifying them of an account suspension if a response was not received by a particular date. After no response, they were notified of an account closure by a set date. The account was ultimately closed due to no response. Reminder to notate the zendesk ticket # or link in your investigation.'},
+    {period:'2026-08 H1',cat:'Investigation',caseId:'AI-66KN9PSNE2CHLXB53',result:'minor',comment:'Notes detail why the investigation was opened. An outreach was made to verify additional information about the business. The analyst followed up with the subscriber for an update. After no update, they were given a suspension date. After the suspension, there was still no response from the account holder. Mudflap was notified of an account closure due to no response. The correct disposition was made. Reminder to include the Zendesk ticket number or link in your investigation notes. SLA not met: investigation was due 8/6/2026 but was dispositioned on 8/7/2026 (1 day late, no extension noted).'},
   ],
   'Shantazha Boazman': [
 
@@ -691,6 +718,23 @@ const FINDINGS = {
     {period:'2026-07 H2',cat:'Application Review',caseId:'ap_22bcgm04zjfnsqigm4n1ju7mt2dtv7t3325p59',result:'pass',comment:'Notes detail that the application was flagged due to a duplicate SSN. The original application was approved. The analyst denied the application as a duplicate. Documents were uploaded for the analyst to review. A subscriber-facing note was left on the account.'},
     {period:'2026-07 H2',cat:'Application Review',caseId:'ap_22bcgm04znfdxsmweph1jturlsbvsi72nf73wk',result:'pass',comment:'Notes are clear and detail the document provided, the acceptance of the document and that the analyst will update the address to reflect the document and re-run kyb. The document was decisioned correctly.'},
     {period:'2026-07 H2',cat:'Application Review',caseId:'ap_22bcgm04zat31df5wat1jttpef1as6chb7gnue',result:'pass',comment:'Notes are clear and detail that the OFAC review is a false positive. No documents were uploaded for the analyst to review.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zi7paq2nesj1juj4p38qak4q31qt3w',result:'pass',comment:'Notes are clear and detail that OFAC is a false positive. The analyst compared the potential matches to our applicant\'s information on file. The provided document was decisioned appropriately, and the application was decisioned accurately.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zxwxh728u3g1jvknmbla9d8us8o2mq',result:'pass',comment:'Notes clearly detail Sentilink\'s findings. The analyst reviewed the provided document and identified it as falsified. The analyst accurately decisioned the document and appropriately decisioned the application. A subscriber-facing note was left with the application findings.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zo3rednpdh71jv6i28ic7auckpb3j7',result:'pass',comment:'Notes are clear and detail the outcome of the OFAC review. The potential matches were listed and compared against our account holder. The application was decided correctly. There were no documents uploaded for the analyst to review.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04z7skehe9nun1jves5q9po8rr9cvsab',result:'pass',comment:'Notes are clear and detail the outcome of the OFAC review. The potential matches were listed and compared against our account holder. The provided document was reviewed and decisioned appropriately, as it did not verify the KYC failure. The application was dispositioned correctly. Reminder: if there are 5 or less potential hits, we should leave 5 OFAC notes with the OFAC ID. If there are more than 5 matches, one consolidated note is fine.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zohjevgwdst1jtj8i0fc1qesvcu2kb',result:'pass',comment:'Notes are clear and detail that a document was provided and whether it satisfied the KYC failures on the application. One document was approved and the other was denied as expired. The analyst decisioned the documents correctly and a second document upload session was generated. A subscriber-facing document was left.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04z8wmiv4mi3v1jvm5vhj929i4hs85o7',result:'pass',comment:'Notes are clear and detail the findings of the duplicate application. The reason for the denial of their initial application was noted. The analyst passed the risk verification to run kyb/c on the new application. The analyst confirmed what the business does. Note: Providing a source for your findings and research will ensure that the next reviewer understands where you found your information. No documents were uploaded for the analyst to review at the time. The application was decisioned correctly.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zunmwq6f84c1jvmred87s2115q7pnh',result:'pass',comment:'Notes are clear and detail the findings on the application review. The analyst reviewed the provided documents- CP 575 and Articles of Amedment. The docuemnts verify the KYB failure. Both documents were approved and the application was dispositioned correctly.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04z5xvg12udp91jvehofjm6rjrrsds4w',result:'pass',comment:'Notes are clear and detail that the application is being reviewed due to a duplicate SSN and EIN. The analyst reviewed all previous applications to understand the denial reasons. The analyst passed the risk verification on the new application. A DL and SS card were requested from the applicant.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zqfptobchdx1ju0v7cqqjjtkjvgkww',result:'pass',comment:'The notes are clear and detail the provided document and why it was not accepted. The analyst opened a third document upload session and requested another document. A subscriber-facing note was left on the account. Documents were decisioned correctly.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zhxua2pfuih1jvcknfdqfdcjjutdbu',result:'pass',comment:'Notes are clear and detail that the application is being reviewed due to a duplicate SSN and EIN. The analyst noted that there was an application for the business currently in review. The analyst denied the application/failed the risk verification due to it being a duplicate. The analyst left a subscriber-facing note. Documents were not uploaded for the analyst to review.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04z2v2ht14me61jveomgpv3ki1sj4kvr',result:'major',comment:'Notes are clear and detail the findings in Sentilink. Documents were reviewed, and additional documents were requested due to the submission of a foreign license. Sentilink and Clear confirm that the SS number entered does not match the applicant\'s record despite the applicant providing a SS card. Inscribe originally flagged the document as medium risk with a trust score of 74. After further review with their AI agent, the document was identified as fabricated. The document and application should have been denied.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zcoqxb8si7f1jvplcjg516u4x7aivn',result:'minor',comment:'Notes are clear and detail that the application is being reviewed due to a duplicate SSN/EIN. The reason for the prior application\'s denial was noted. The risk verification was passed. There were not documents uploaded for the analyst to review. Reminder: once the risk verification is passed, you need to wait for the KYB and KYC results to show to ensure there is no fraud flag or OFAC match that needs to be reviewed. This application has a potential OFAC match on the business but it was not reviewed by the analyst.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zh45b1f5emu1jvkgv4178uh3e232hx',result:'major',comment:'Notes are clear on the document provided however the document\'s trust score is 47. Inscribe identifies a case anonomly with the business name and address. On CP 575 the business information is always in all caps. The document was approved but it should have been denied.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zqx67s8joub1jvlg5b4odpna1iv1mu',result:'pass',comment:'Notes are clear and detail the outcome of the OFAC review. The potential matches were listed and compared against our account holder. The application was dispositioned correctly. There were not documents uploaded for the analyst to review.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zkfa15eget21jvcj3a873t4tkm6kpc',result:'pass',comment:'Notes are clear and detail that the application is being reviewed due to a duplicate SSN and EIN match. The analyst reviewed the prior application to understand the denial reason. The analyst passed the risk verification on the new application.'},
+    {period:'2026-08 H1',cat:'OFAC Screening',caseId:'coifs_e9fae18ef8e6436194876da8f1006620',result:'pass',comment:'Notes are clear and detail the outcome of the OFAC review. The potential matches were listed and compared against our account holder. | Yes, the application and OFAC flag were reviewed by the analyst on the same day as the match date.'},
+    {period:'2026-08 H1',cat:'OFAC Screening',caseId:'coifs_c7cb465438e74dd5ad5571c20532a004',result:'pass',comment:'Notes are clear and detail the outcome of the OFAC review. The potential matches were listed and compared against our account holder. | Yes, the application and OFAC flag were reviewed by the analyst on the same day as the match date.'},
   ],
   'Rene Ike': [
 
@@ -795,6 +839,23 @@ const FINDINGS = {
     {period:'2026-07 H2',cat:'TM Alert',caseId:'A-Y6A4T6AUSZTQSB7PS2',result:'pass',comment:''},
     {period:'2026-07 H2',cat:'TM Alert',caseId:'TM (ACH HOLD): A-B4R369AHFQBVDJVT6F',result:'pass',comment:''},
     {period:'2026-07 H2',cat:'TM Alert',caseId:'TM(ACH HOLD): A-XYPNZHC6Z3SCRBVGMX',result:'pass',comment:''},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zi7paq2nesj1juj4p38qak4q31qt3w',result:'pass',comment:'Notes are clear and detail that OFAC is a false positive. The analyst compared the potential matches to our applicant\'s information on file. The provided document was decisioned appropriately, and the application was decisioned accurately.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zxwxh728u3g1jvknmbla9d8us8o2mq',result:'pass',comment:'Notes clearly detail Sentilink\'s findings. The analyst reviewed the provided document and identified it as falsified. The analyst accurately decisioned the document and appropriately decisioned the application. A subscriber-facing note was left with the application findings.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zo3rednpdh71jv6i28ic7auckpb3j7',result:'pass',comment:'Notes are clear and detail the outcome of the OFAC review. The potential matches were listed and compared against our account holder. The application was decided correctly. There were no documents uploaded for the analyst to review.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04z7skehe9nun1jves5q9po8rr9cvsab',result:'pass',comment:'Notes are clear and detail the outcome of the OFAC review. The potential matches were listed and compared against our account holder. The provided document was reviewed and decisioned appropriately, as it did not verify the KYC failure. The application was dispositioned correctly. Reminder: if there are 5 or less potential hits, we should leave 5 OFAC notes with the OFAC ID. If there are more than 5 matches, one consolidated note is fine.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zohjevgwdst1jtj8i0fc1qesvcu2kb',result:'pass',comment:'Notes are clear and detail that a document was provided and whether it satisfied the KYC failures on the application. One document was approved and the other was denied as expired. The analyst decisioned the documents correctly and a second document upload session was generated. A subscriber-facing document was left.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04z8wmiv4mi3v1jvm5vhj929i4hs85o7',result:'pass',comment:'Notes are clear and detail the findings of the duplicate application. The reason for the denial of their initial application was noted. The analyst passed the risk verification to run kyb/c on the new application. The analyst confirmed what the business does. Note: Providing a source for your findings and research will ensure that the next reviewer understands where you found your information. No documents were uploaded for the analyst to review at the time. The application was decisioned correctly.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zunmwq6f84c1jvmred87s2115q7pnh',result:'pass',comment:'Notes are clear and detail the findings on the application review. The analyst reviewed the provided documents- CP 575 and Articles of Amedment. The docuemnts verify the KYB failure. Both documents were approved and the application was dispositioned correctly.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04z5xvg12udp91jvehofjm6rjrrsds4w',result:'pass',comment:'Notes are clear and detail that the application is being reviewed due to a duplicate SSN and EIN. The analyst reviewed all previous applications to understand the denial reasons. The analyst passed the risk verification on the new application. A DL and SS card were requested from the applicant.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zqfptobchdx1ju0v7cqqjjtkjvgkww',result:'pass',comment:'The notes are clear and detail the provided document and why it was not accepted. The analyst opened a third document upload session and requested another document. A subscriber-facing note was left on the account. Documents were decisioned correctly.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zhxua2pfuih1jvcknfdqfdcjjutdbu',result:'pass',comment:'Notes are clear and detail that the application is being reviewed due to a duplicate SSN and EIN. The analyst noted that there was an application for the business currently in review. The analyst denied the application/failed the risk verification due to it being a duplicate. The analyst left a subscriber-facing note. Documents were not uploaded for the analyst to review.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04z2v2ht14me61jveomgpv3ki1sj4kvr',result:'major',comment:'Notes are clear and detail the findings in Sentilink. Documents were reviewed, and additional documents were requested due to the submission of a foreign license. Sentilink and Clear confirm that the SS number entered does not match the applicant\'s record despite the applicant providing a SS card. Inscribe originally flagged the document as medium risk with a trust score of 74. After further review with their AI agent, the document was identified as fabricated. The document and application should have been denied.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zcoqxb8si7f1jvplcjg516u4x7aivn',result:'minor',comment:'Notes are clear and detail that the application is being reviewed due to a duplicate SSN/EIN. The reason for the prior application\'s denial was noted. The risk verification was passed. There were not documents uploaded for the analyst to review. Reminder: once the risk verification is passed, you need to wait for the KYB and KYC results to show to ensure there is no fraud flag or OFAC match that needs to be reviewed. This application has a potential OFAC match on the business but it was not reviewed by the analyst.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zh45b1f5emu1jvkgv4178uh3e232hx',result:'major',comment:'Notes are clear on the document provided however the document\'s trust score is 47. Inscribe identifies a case anonomly with the business name and address. On CP 575 the business information is always in all caps. The document was approved but it should have been denied.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zqx67s8joub1jvlg5b4odpna1iv1mu',result:'pass',comment:'Notes are clear and detail the outcome of the OFAC review. The potential matches were listed and compared against our account holder. The application was dispositioned correctly. There were not documents uploaded for the analyst to review.'},
+    {period:'2026-08 H1',cat:'Application Review',caseId:'ap_22bcgm04zkfa15eget21jvcj3a873t4tkm6kpc',result:'pass',comment:'Notes are clear and detail that the application is being reviewed due to a duplicate SSN and EIN match. The analyst reviewed the prior application to understand the denial reason. The analyst passed the risk verification on the new application.'},
+    {period:'2026-08 H1',cat:'OFAC Screening',caseId:'coifs_e9fae18ef8e6436194876da8f1006620',result:'pass',comment:'Notes are clear and detail the outcome of the OFAC review. The potential matches were listed and compared against our account holder. | Yes, the application and OFAC flag were reviewed by the analyst on the same day as the match date.'},
+    {period:'2026-08 H1',cat:'OFAC Screening',caseId:'coifs_c7cb465438e74dd5ad5571c20532a004',result:'pass',comment:'Notes are clear and detail the outcome of the OFAC review. The potential matches were listed and compared against our account holder. | Yes, the application and OFAC flag were reviewed by the analyst on the same day as the match date.'}
   ],
 };
 
@@ -1278,9 +1339,38 @@ function renderAna(analyst){
   renderAcknowledgment(analyst);
   fetchAndRenderSignOffs(analyst); // async: updates card if sheet has a prior sign-off
 
-  // Findings — only show major/minor in Recent Feedback; pass notes appear in My Reviewed Cases table
-  const ff=getfindings(analyst,PERIOD).filter(f=>f.result==='major'||f.result==='minor');
-  document.getElementById('ana-findings').innerHTML=ff.length?ff.map(f=>{
+  // ── Feedback summary table ─────────────────────────────────────────
+  const allFF=getfindings(analyst,PERIOD);
+  const hasReviews=summary(analyst,PERIOD).r>0;
+  const ff=allFF.filter(f=>f.result==='major'||f.result==='minor');
+  const notesNeed   =ff.some(f=>/\breminder\b|notes?\s+(?:do(?:es)?|did)\s+not|not\s+(?:document(?:ed)?|notat(?:ed)?|mention(?:ed)?|includ(?:ed)?|specif(?:y|ied)?|record(?:ed)?|detail(?:ed)?|not(?:ed)?)/i.test(f.comment));
+  const decisionNeed=(()=>{const dp=/should not have been\s+(?:approved|denied|closed|flagged|rejected|escalated|suspended|dispositioned|requested)|should have been\s+(?:approved|denied|closed|flagged|rejected|escalated|suspended|dispositioned|requested)|incorrectly?\s+(?:approved|denied|closed|dispositioned|flagged|passed|escalated|suspended)|incorrect\s+decision|\bdecision\b[^.]*\b(?:was|were|is)\s+incorrect|is not (?:closed|open(?:ed)?)|still (?:suspended|open)/i;const np=/\breminder\b|notes?\s+(?:do(?:es)?|did)\s+not|not\s+(?:document(?:ed)?|notat(?:ed)?|mention(?:ed)?|includ(?:ed)?|specif(?:y|ied)?|record(?:ed)?|detail(?:ed)?|not(?:ed)?)/i;return ff.some(f=>f.result==='major'&&['Application Review','OFAC Screening','TM Alert','Investigation'].includes(f.cat)&&(dp.test(f.comment)||!np.test(f.comment)));})();
+  const ddNeed      =ff.some(f=>f.result==='major'&&['EDD'].includes(f.cat));
+  const slaNeed     =ff.some(f=>/SLA not met|no extension documented|exceeded.*SLA/i.test(f.comment));
+  const fbDims=[
+    {label:'Case Notes and Documentation',need:notesNeed},
+    {label:'Decisioning Accuracy',        need:decisionNeed},
+    {label:'Due Diligence and Analysis',  need:ddNeed},
+    {label:'Timeliness and SLA Adherence',need:slaNeed},
+  ];
+  const fbTable=hasReviews?`<div style="margin-bottom:20px">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);margin-bottom:10px">Performance Summary</div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr style="background:var(--surface-page)">
+        <th style="padding:9px 12px;text-align:left;border:1px solid var(--grid);font-weight:600;color:var(--ink-2);font-size:12px;width:56%"></th>
+        <th style="padding:9px 12px;text-align:center;border:1px solid var(--grid);font-weight:600;color:var(--ink-2);font-size:12px">Areas of Strength</th>
+        <th style="padding:9px 12px;text-align:center;border:1px solid var(--grid);font-weight:600;color:var(--ink-2);font-size:12px">Areas for Improvement</th>
+      </tr></thead>
+      <tbody>${fbDims.map(d=>`<tr>
+        <td style="padding:9px 12px;border:1px solid var(--grid);color:var(--ink-1)">${d.label}</td>
+        <td style="padding:9px 12px;border:1px solid var(--grid);text-align:center">${!d.need?'<span style="color:#0ca30c;font-size:15px;font-weight:700">✓</span>':'<span style="color:var(--baseline);font-size:13px">☐</span>'}</td>
+        <td style="padding:9px 12px;border:1px solid var(--grid);text-align:center">${d.need?'<span style="color:var(--critical);font-size:15px;font-weight:700">✓</span>':'<span style="color:var(--baseline);font-size:13px">☐</span>'}</td>
+      </tr>`).join('')}</tbody>
+    </table>
+  </div>`:'';
+
+  // ── Individual findings (minor / major only) ────────────────────────
+  const findingsHtml=ff.length?`<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-muted);margin-bottom:10px">Finding Details</div>`+ff.map(f=>{
     const rc=f.result==='major'?'major':'minor';
     const rl=f.result==='major'?'⚠ Major Finding':'◎ Minor Finding';
     return `<div class="finding">
@@ -1292,7 +1382,11 @@ function renderAna(analyst){
       </div>
       <div class="finding-comment">${f.comment}</div>
     </div>`;
-  }).join(''):'<div class="empty">No findings on record for this period.</div>';
+  }).join(''):`<div style="font-size:13px;color:var(--ink-muted);margin-top:2px">No minor or major findings this period — great work!</div>`;
+
+  document.getElementById('ana-findings').innerHTML=hasReviews
+    ?(fbTable+findingsHtml)
+    :'<div class="empty">No reviews on record for this period.</div>';
 }
 
 /* ══ MY REVIEWED CASES ══════════════════════════════════════════════ */
@@ -1397,6 +1491,34 @@ const CASES = {
       'EDD': [],
       'Investigation': [{id:'AI-VRCDLWNPBP35FNH4X',result:'pass',date:'7/22/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3prd59fe5cae5254ec7a872763a16f7eb82/og_bs0144932741efa144b8ab5878ad2dcb21a7/AI-VRCDLWNPBP35FNH4X?accountHolderId=og_ah0204z6ntt72uuhv1jmc1gpugafi7xbjscb'},{id:'AI-K8EW48WYR23QKFUSN',result:'pass',date:'7/29/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3prf7cbddc391914a6fa291785ce538ed02/og_bs01db5f0e4bd2b24a0ab486b19e9b5833f6/AI-K8EW48WYR23QKFUSN?accountHolderId=og_ah0282b4b2cd37814eba866df95c068da4cc'},{id:'AI-NNU4ZV7BZDLVDV74M',result:'pass',date:'7/20/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3prf7cbddc391914a6fa291785ce538ed02/og_bs01db5f0e4bd2b24a0ab486b19e9b5833f6/AI-NNU4ZV7BZDLVDV74M?accountHolderId=og_ah0203z2a6o35owe2vf111sc4vttnegeetvw'}],
     },
+    '2026-08 H1': {
+      'Application Review': [
+        {id:'ap_22bcgm04zqfptobchdx1ju0v7cqqjjtkjvgkww',result:'pass',date:'8/11/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/145487'},
+        {id:'ap_22bcgm04zw837c483261jveub6ojep7rwnvjg3',result:'pass',date:'8/7/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/145100'},
+        {id:'ap_22bcgm04z6rog45ruaq1jvrfsut65n2wqsf58q',result:'pass',date:'8/12/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/145735'},
+        {id:'ap_22bcgm04z7m5k48ofbi1jvr8egrtgiku4v6noo',result:'pass',date:'8/12/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/145720'},
+        {id:'ap_22bcgm04zhbdwg1cbhg1jvu6gov8ehjrpcj8sn',result:'pass',date:'8/13/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/145897'},
+        {id:'ap_22bcgm04ztrd37h3xna1jv4u5da9kmc1u2x2f7',result:'pass',date:'8/5/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/144555'},
+        {id:'ap_22bcgm04zxg735hoe7i1jvq5cfckv71d4rtpk4',result:'pass',date:'8/12/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/145655'},
+        {id:'ap_22bcgm04zd5oaw54pui1jvnf6p72qinjsks9h8',result:'pass',date:'8/11/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/145463'},
+        {id:'ap_22bcgm04zp2gmifmsp51jvru91512vmr2xbj4n',result:'pass',date:'8/13/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/145799'},
+        {id:'ap_22bcgm04zrvq1q9k2hn1jvuj7l6254fnxnop2o',result:'pass',date:'8/14/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/145939'},
+        {id:'ap_22bcgm04zgsvakog7ex1jvogsl0v6bfdobcsc1',result:'pass',date:'8/11/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/145494'},
+        {id:'ap_22bcgm04zax2wpvfkqr1jv1amhfm2wknnifkhg',result:'pass',date:'8/5/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/144576'},
+      ],
+      'TM Alert': [],
+      'OFAC Screening': [
+        {id:'coifs_7575c73e01194671851bdbe8c1d8f5a3',result:'pass',date:'8/5/2026',zd:'https://ops.highnote.com/risk/ofac/false-positive/coifs_7575c73e01194671851bdbe8c1d8f5a3'},
+        {id:'coifs_cbf08be44f1c400e8fd0d60156a7a4e9',result:'pass',date:'8/6/2026',zd:'https://ops.highnote.com/risk/ofac/false-positive/coifs_cbf08be44f1c400e8fd0d60156a7a4e9'},
+      ],
+      'EDD': [
+        {id:'ap_22bcgm04z1qtiprocqx1jt9730bt3odocftjj7',result:'pass',date:'8/12/2026',zd:'https://dashboard.highnote.com/organizations/og_bs01db5f0e4bd2b24a0ab486b19e9b5833f6/card-products/pd_e526ec7837fd45d0b1d8c65bfd6c401f/applications-v2/ap_22bcgm04z1qtiprocqx1jt9730bt3odocftjj7'},
+      ],
+      'Investigation': [
+        {id:'AI-7YW2R22XRPY3XKRRD',result:'pass',date:'8/3/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3prf7cbddc391914a6fa291785ce538ed02/og_bs01db5f0e4bd2b24a0ab486b19e9b5833f6/AI-7YW2R22XRPY3XKRRD?accountHolderId=og_ah0204zp2ax5fqhvp1jthp6jgtdxoin3i85o'},
+        {id:'AI-66KN9PSNE2CHLXB53',result:'minor',date:'8/7/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3prf7cbddc391914a6fa291785ce538ed02/og_bs01db5f0e4bd2b24a0ab486b19e9b5833f6/AI-66KN9PSNE2CHLXB53?accountHolderId=og_ah0204zceb5sr7k2q1jtj4nf6dwar6qvbxjh'},
+      ],
+    },
   },
   'Shantazha Boazman': {
     '2026-07 H1': {
@@ -1420,6 +1542,32 @@ const CASES = {
       'TM Alert': [],
       'OFAC Screening': [{id:'coifs_957beca952964f4980df5f28a72cbca2',result:'pass',date:'7/28/2026',zd:'https://ops.highnote.com/risk/ofac/false-positive/coifs_957beca952964f4980df5f28a72cbca2'},{id:'coifs_d56317a6becc46b1acaa8472ebfd0122',result:'pass',date:'7/16/2026',zd:'https://ops.highnote.com/risk/ofac/false-positive/coifs_d56317a6becc46b1acaa8472ebfd0122'},{id:'coifs_b29d2ff6563d43d7b93b62dfabc06737',result:'pass',date:'7/17/2026',zd:'https://ops.highnote.com/risk/ofac/false-positive/coifs_b29d2ff6563d43d7b93b62dfabc06737'},{id:'coifs_9a7ddbd711fe4cd6a88323abfa4ace8b',result:'pass',date:'7/27/2026',zd:'https://ops.highnote.com/risk/ofac/false-positive/coifs_9a7ddbd711fe4cd6a88323abfa4ace8b'}],
       'EDD': [{id:'ap_22bcgm04z8tbpna6vf41js0om35fw3imjapjtd',result:'pass',date:'7/28/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/139419'}],
+      'Investigation': [],
+    },
+    '2026-08 H1': {
+      'Application Review': [
+        {id:'ap_22bcgm04zi7paq2nesj1juj4p38qak4q31qt3w',result:'pass',date:'8/7/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/145057'},
+        {id:'ap_22bcgm04zxwxh728u3g1jvknmbla9d8us8o2mq',result:'pass',date:'8/10/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/145289'},
+        {id:'ap_22bcgm04zo3rednpdh71jv6i28ic7auckpb3j7',result:'pass',date:'8/5/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/144609'},
+        {id:'ap_22bcgm04z7skehe9nun1jves5q9po8rr9cvsab',result:'pass',date:'8/7/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/145094'},
+        {id:'ap_22bcgm04zohjevgwdst1jtj8i0fc1qesvcu2kb',result:'pass',date:'8/5/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/144641'},
+        {id:'ap_22bcgm04z8wmiv4mi3v1jvm5vhj929i4hs85o7',result:'pass',date:'8/10/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/145364'},
+        {id:'ap_22bcgm04zunmwq6f84c1jvmred87s2115q7pnh',result:'pass',date:'8/11/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/145427'},
+        {id:'ap_22bcgm04z5xvg12udp91jvehofjm6rjrrsds4w',result:'pass',date:'8/7/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/145048'},
+        {id:'ap_22bcgm04zqfptobchdx1ju0v7cqqjjtkjvgkww',result:'pass',date:'8/5/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/144597'},
+        {id:'ap_22bcgm04zhxua2pfuih1jvcknfdqfdcjjutdbu',result:'pass',date:'8/7/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/144975'},
+        {id:'ap_22bcgm04z2v2ht14me61jveomgpv3ki1sj4kvr',result:'major',date:'8/7/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/145085'},
+        {id:'ap_22bcgm04zcoqxb8si7f1jvplcjg516u4x7aivn',result:'minor',date:'8/12/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/145641'},
+        {id:'ap_22bcgm04zh45b1f5emu1jvkgv4178uh3e232hx',result:'major',date:'8/10/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/145321'},
+        {id:'ap_22bcgm04zqx67s8joub1jvlg5b4odpna1iv1mu',result:'pass',date:'8/10/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/145310'},
+        {id:'ap_22bcgm04zkfa15eget21jvcj3a873t4tkm6kpc',result:'pass',date:'8/7/2026',zd:'https://highnoteplatform.zendesk.com/agent/tickets/144974'},
+      ],
+      'TM Alert': [],
+      'OFAC Screening': [
+        {id:'coifs_e9fae18ef8e6436194876da8f1006620',result:'pass',date:'8/7/2026',zd:'https://ops.highnote.com/risk/ofac/false-positive/coifs_e9fae18ef8e6436194876da8f1006620'},
+        {id:'coifs_c7cb465438e74dd5ad5571c20532a004',result:'pass',date:'8/10/2026',zd:'https://ops.highnote.com/risk/ofac/false-positive/coifs_c7cb465438e74dd5ad5571c20532a004'},
+      ],
+      'EDD': [],
       'Investigation': [],
     },
   },
