@@ -149,10 +149,13 @@ tbody tr:hover td{background:var(--surface-page)}
     <button id="nav-back" onclick="backToTeam()" style="display:none;align-items:center;gap:5px;padding:6px 12px;font-size:12px;font-weight:600;background:none;border:1px solid var(--baseline);border-radius:6px;color:var(--ink-2);cursor:pointer;white-space:nowrap">← Team View</button>
     <div class="nav-title">Risk QA Dashboard <span id="nav-sub"></span></div>
     <select class="nav-period" id="period-sel" onchange="onPeriodChange()">
+      <optgroup label="─── August 2026 ───">
+        <option value="2026-08 H1" selected>Aug 2026 · H1  (1st – 15th)</option>
+      </optgroup>
       <optgroup label="─── July 2026 ───">
         <option value="2026-07">Jul 2026 · Full Month</option>
         <option value="2026-07 H1">Jul 2026 · H1  (1st – 15th)</option>
-        <option value="2026-07 H2" selected>Jul 2026 · H2  (16th – 31st)</option>
+        <option value="2026-07 H2">Jul 2026 · H2  (16th – 31st)</option>
       </optgroup>
       <optgroup label="─── June 2026 ───">
         <option value="2026-06">Jun 2026 · Full Month</option>
@@ -422,10 +425,11 @@ function renderAcknowledgment(analyst){
 /* ══ DATA ═══════════════════════════════════════════════════════════ */
 const ANALYSTS = ['Saedika Chambers'];
 const CATEGORIES = ['Application Review','TM Alert','OFAC Screening','EDD','Investigation'];
-const PERIODS = ['2026-06 H1','2026-06 H2','2026-07 H1','2026-07 H2'];
+const PERIODS = ['2026-06 H1','2026-06 H2','2026-07 H1','2026-07 H2','2026-08 H1'];
 const MONTHLY = {
   '2026-06': ['2026-06 H1','2026-06 H2'],
   '2026-07': ['2026-07 H1','2026-07 H2'],
+  '2026-08': ['2026-08 H1'],
 };
 const COLORS = {
   'Jessica Henderson': '#2a78d6',
@@ -443,6 +447,7 @@ const D = {
     '2026-06 H2': {'Application Review':{pass:0,minor:0,major:0,reviewed:0},'TM Alert':{pass:10,minor:0,major:0,reviewed:10},'OFAC Screening':{pass:0,minor:0,major:0,reviewed:0},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:1,minor:0,major:0,reviewed:1}},
     '2026-07 H1': {'Application Review':{pass:0,minor:0,major:0,reviewed:0},'TM Alert':{pass:11,minor:0,major:0,reviewed:11},'OFAC Screening':{pass:0,minor:0,major:0,reviewed:0},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:3,minor:0,major:0,reviewed:3}},
     '2026-07 H2': {'Application Review':{pass:0,minor:0,major:0,reviewed:0},'TM Alert':{pass:10,minor:0,major:0,reviewed:10},'OFAC Screening':{pass:0,minor:0,major:0,reviewed:0},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:3,minor:0,major:0,reviewed:3}},
+    '2026-08 H1': {'Application Review':{pass:0,minor:0,major:0,reviewed:0},'TM Alert':{pass:14,minor:0,major:0,reviewed:14,scoreSum:1400},'OFAC Screening':{pass:0,minor:0,major:0,reviewed:0},'EDD':{pass:0,minor:0,major:0,reviewed:0},'Investigation':{pass:3,minor:0,major:0,reviewed:3,scoreSum:300}},
   },
 };
 
@@ -472,6 +477,23 @@ const FINDINGS = {
     {period:'2026-07 H2',cat:'Investigation',caseId:'AI-96MGLLW46WK966L2T',result:'pass',comment:'Notes detail why the investigation was opened, and a Zendesk ticket number was included in the investigation notes. The notes detailed that the card would be suspended, and the subscriber was notified. The activity turned out to be unauthorized. The card was closed. A new card was not issued per subscriber request. The correct disposition was selected for the investigation.'},
     {period:'2026-07 H2',cat:'Investigation',caseId:'AI-KSVVKKGLJ6D2KZWS5',result:'pass',comment:'Notes detail the reason for the investigation, and the Zendesk ticket was included in the notes. The account was placed under review, and the subscriber was notified by the analyst. After no response, the analyst followed up for an update. The provided documents and US DOT information were added to the shared drive. The investigation was dispositioned correctly, and documents were stored properly.'},
     {period:'2026-07 H2',cat:'Investigation',caseId:'AI-9XC2AR8YF5334X7U7',result:'pass',comment:'Notes are clear and explain why an investigation was opened. After receiving no response, the analyst notified the subscriber of the account deadline to avoid account closure. The account holder responded and verified that the charges were not authorized. The SLA was extended to allow additional time for the subscriber to provide the analyst with information. The analyst issued a replacement card, and the compromised card was closed. The investigation was dispositioned correctly. Reminder: note if a UAR/QAR is needed.'},
+    {period:'2026-08 H1',cat:'TM Alert',caseId:'A-PN28UWHF4ZCGZJAQJH',result:'pass',comment:''},
+    {period:'2026-08 H1',cat:'TM Alert',caseId:'A-NPVUDYLTSJPS9U6S2B',result:'pass',comment:''},
+    {period:'2026-08 H1',cat:'TM Alert',caseId:'A-F5MEK8GVDRQMY23NTX',result:'pass',comment:''},
+    {period:'2026-08 H1',cat:'TM Alert',caseId:'A-6XLYUX5LWS6CT6D22N',result:'pass',comment:''},
+    {period:'2026-08 H1',cat:'TM Alert',caseId:'A-ZJ7VQ5TTTXQBPCX9XD',result:'pass',comment:''},
+    {period:'2026-08 H1',cat:'TM Alert',caseId:'A-82CYZ3BNVF92N3YC9L',result:'pass',comment:''},
+    {period:'2026-08 H1',cat:'TM Alert',caseId:'A-QXKRNU23P8KB5N8DU4',result:'pass',comment:''},
+    {period:'2026-08 H1',cat:'TM Alert',caseId:'A-DA96F2CM6GEDBEKBD8',result:'pass',comment:'Notes are clear and detail that the alert was escalated to an investigation and the reason why.'},
+    {period:'2026-08 H1',cat:'TM Alert',caseId:'A-C5F77GFHW633YTLMF5',result:'pass',comment:'Notes are clear and detailed. The alert was escalated to an investigation and details why.'},
+    {period:'2026-08 H1',cat:'TM Alert',caseId:'A-EMUYTGWRWMUBAQ8RBV',result:'pass',comment:''},
+    {period:'2026-08 H1',cat:'TM Alert',caseId:'A-G5LNXTCHUSN3MNZGJZ',result:'pass',comment:''},
+    {period:'2026-08 H1',cat:'TM Alert',caseId:'A-AZPZXL9LCQ65PYLJE7',result:'pass',comment:''},
+    {period:'2026-08 H1',cat:'TM Alert',caseId:'A-ADR5A5F549G85NJDYP',result:'pass',comment:''},
+    {period:'2026-08 H1',cat:'TM Alert',caseId:'A-BFDJTKBQ6M45XKZV9S',result:'pass',comment:''},
+    {period:'2026-08 H1',cat:'Investigation',caseId:'AI-JFGDVEX7P2AE4GGH9',result:'pass',comment:'Notes are clear and detail why an investigation was opened. The zendesk ticket is included in the notes. The account and spend on the account was determined to be fraudulent and not legitimate. The subscriber was notified of the findings and card closure. The analyst filed a QAR and noted why. The correct disposition was selected. SLA met.'},
+    {period:'2026-08 H1',cat:'Investigation',caseId:'AI-S484Y28XD7H8KGF2E',result:'pass',comment:'Notes are clear and detail why the investigation was opened. An outreach was made to the subscriber and the Zendesk ticket was included in the notes. The account holder confirmed the activity was authorized and confirmed possession of the card ending in 4399. The analyst followed up and notified the subscriber that the card would remain open for normal use. No documents were requested and the card was not suspended. SLA was met and the investigation was dispositioned correctly. SLA met.'},
+    {period:'2026-08 H1',cat:'Investigation',caseId:'AI-S3STQ8DE6UQ3UQF8U',result:'pass',comment:'Investigation notes are clear and detail why the investigation was opened. An outreach was made to the subscriber and the Zendesk ticket was included in the notes. The account holder did not respond to any of the subscriber\'s outreach attempts and did not confirm possession of the card ending in 1421 or authorization of the flagged transaction attempts. The analyst followed up with the subscriber multiple times and notified the subscriber that the card had been blocked and that the account would be closed if no response was received by August 6. No documents were requested and the card was blocked on August 3 before the account was closed on August 10, following an SLA extension noted on the investigation that moved the due date from August 6 to August 10. A UAR was not filed and the analyst documented that the flagged spend attempts never cleared the account. The extended SLA was met and the investigation was dispositioned correctly. SLA was extended. The extended SLA was met.'},
   ],
 };
 
@@ -1134,6 +1156,13 @@ const CASES = {
       'OFAC Screening': [],
       'EDD': [],
       'Investigation': [{id:'AI-96MGLLW46WK966L2T',result:'pass',date:'7/27/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3prd59fe5cae5254ec7a872763a16f7eb82/og_bs0144932741efa144b8ab5878ad2dcb21a7/AI-96MGLLW46WK966L2T'},{id:'AI-KSVVKKGLJ6D2KZWS5',result:'pass',date:'7/27/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3prd59fe5cae5254ec7a872763a16f7eb82/og_bs0144932741efa144b8ab5878ad2dcb21a7/AI-KSVVKKGLJ6D2KZWS5'},{id:'AI-9XC2AR8YF5334X7U7',result:'pass',date:'7/17/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3prd59fe5cae5254ec7a872763a16f7eb82/og_bs0144932741efa144b8ab5878ad2dcb21a7/AI-9XC2AR8YF5334X7U7'}],
+    },
+    '2026-08 H1': {
+      'Application Review': [],
+      'TM Alert': [{id:'A-PN28UWHF4ZCGZJAQJH',result:'pass',date:'8/10/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-PN28UWHF4ZCGZJAQJH?accountHolderId=og_ah0251a8e17684de4bd7abdf90df206717a1'},{id:'A-NPVUDYLTSJPS9U6S2B',result:'pass',date:'8/10/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-NPVUDYLTSJPS9U6S2B?accountHolderId=og_ah0251a8e17684de4bd7abdf90df206717a1'},{id:'A-F5MEK8GVDRQMY23NTX',result:'pass',date:'8/10/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-F5MEK8GVDRQMY23NTX?accountHolderId=og_ah02643f764320314729bdc8d2a8d20071a3'},{id:'A-6XLYUX5LWS6CT6D22N',result:'pass',date:'8/10/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-6XLYUX5LWS6CT6D22N?accountHolderId=og_ah0251a8e17684de4bd7abdf90df206717a1'},{id:'A-ZJ7VQ5TTTXQBPCX9XD',result:'pass',date:'8/10/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-ZJ7VQ5TTTXQBPCX9XD?accountHolderId=og_ah0251a8e17684de4bd7abdf90df206717a1'},{id:'A-82CYZ3BNVF92N3YC9L',result:'pass',date:'8/10/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-82CYZ3BNVF92N3YC9L?accountHolderId=og_ah0204zrnm98ucq1m1jp0ml4r0rrakpk3kh3'},{id:'A-QXKRNU23P8KB5N8DU4',result:'pass',date:'8/10/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-QXKRNU23P8KB5N8DU4?accountHolderId=og_ah02643f764320314729bdc8d2a8d20071a3'},{id:'A-DA96F2CM6GEDBEKBD8',result:'pass',date:'8/11/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-DA96F2CM6GEDBEKBD8?accountHolderId=og_ah02a496c81b0dec45d1a2f2aef879a525d4'},{id:'A-C5F77GFHW633YTLMF5',result:'pass',date:'8/11/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-C5F77GFHW633YTLMF5?accountHolderId=og_ah02a496c81b0dec45d1a2f2aef879a525d4'},{id:'A-EMUYTGWRWMUBAQ8RBV',result:'pass',date:'8/10/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-EMUYTGWRWMUBAQ8RBV?accountHolderId=og_ah02643f764320314729bdc8d2a8d20071a3'},{id:'A-G5LNXTCHUSN3MNZGJZ',result:'pass',date:'8/10/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-G5LNXTCHUSN3MNZGJZ?accountHolderId=og_ah02643f764320314729bdc8d2a8d20071a3'},{id:'A-AZPZXL9LCQ65PYLJE7',result:'pass',date:'8/10/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-AZPZXL9LCQ65PYLJE7?accountHolderId=og_ah02643f764320314729bdc8d2a8d20071a3'},{id:'A-ADR5A5F549G85NJDYP',result:'pass',date:'8/10/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-ADR5A5F549G85NJDYP?accountHolderId=og_ah02643f764320314729bdc8d2a8d20071a3'},{id:'A-BFDJTKBQ6M45XKZV9S',result:'pass',date:'8/10/2026',zd:'https://ops.highnote.com/risk/alerts/detail/tn_23usv3prd76b341540164056806ccd080c34be84/og_bs01e3f85dc15c3f496aa980ff37faf84681/A-BFDJTKBQ6M45XKZV9S?accountHolderId=og_ah02643f764320314729bdc8d2a8d20071a3'}],
+      'OFAC Screening': [],
+      'EDD': [],
+      'Investigation': [{id:'AI-JFGDVEX7P2AE4GGH9',result:'pass',date:'8/7/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3prf7cbddc391914a6fa291785ce538ed02/og_bs01db5f0e4bd2b24a0ab486b19e9b5833f6/AI-JFGDVEX7P2AE4GGH9?accountHolderId=og_ah0204zq76a7qj6hu1jt0b83unbrqqd2aj9k'},{id:'AI-S484Y28XD7H8KGF2E',result:'pass',date:'8/7/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3prf7cbddc391914a6fa291785ce538ed02/og_bs01db5f0e4bd2b24a0ab486b19e9b5833f6/AI-S484Y28XD7H8KGF2E?accountHolderId=og_ah0204za39tca6w1j1jqmgbe3rjtxor22grh'},{id:'AI-S3STQ8DE6UQ3UQF8U',result:'pass',date:'8/10/2026',zd:'https://ops.highnote.com/risk/investigations/detail/tn_23usv3prf7cbddc391914a6fa291785ce538ed02/og_bs01db5f0e4bd2b24a0ab486b19e9b5833f6/AI-S3STQ8DE6UQ3UQF8U?accountHolderId=og_ah0204z6r5d3hi4hg1jk0oh0ma9bnn6p7esi'}],
     },
   },
   'Brian Bailey': {
