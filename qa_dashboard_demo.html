@@ -152,8 +152,19 @@ tbody tr:hover td{background:var(--surface-page)}
       </div>
     </div>
     <h2>Sign in</h2>
-    <p style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-2);margin-bottom:16px">Full Access</p>
-    <button class="lbtn" onclick="activateSession('Manager','manager')">View Team Dashboard →</button>
+    <p style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-2);margin-bottom:12px">Manager / Full Access</p>
+    <button class="lbtn" style="margin-bottom:24px" onclick="activateSession('Manager','manager')">View Team Dashboard →</button>
+    <div style="border-top:1px solid var(--grid);padding-top:20px">
+      <p style="font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-2);margin-bottom:12px">Analyst — My Dashboard</p>
+      <select id="usel-ana" style="width:100%;padding:11px 36px 11px 12px;border:1px solid var(--baseline);border-radius:8px;font-size:14px;background:var(--surface-1);color:var(--ink-1);margin-bottom:14px;appearance:none;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23898781' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 12px center;cursor:pointer">
+        <option value="">— Select your name —</option>
+        <option value="Analyst 1">Analyst 1</option>
+        <option value="Analyst 2">Analyst 2</option>
+        <option value="Analyst 3">Analyst 3</option>
+        <option value="Analyst 4">Analyst 4</option>
+      </select>
+      <button class="lbtn" style="background:#1baf7a" onclick="(function(){const v=document.getElementById('usel-ana').value;if(!v){document.getElementById('usel-ana').style.borderColor='#d03b3b';return;}activateSession(v,'analyst');})()">Open My Dashboard →</button>
+    </div>
   </div>
 </div>
 
@@ -372,25 +383,45 @@ async function doSign(analyst,period,role){
 function renderAcknowledgment(analyst){
   const el=document.getElementById('ana-ack-card');
   if(!el) return;
-  // Manager/full-access view: only show card if analyst has acknowledged
+  // Manager/full-access view: always show acknowledgment card (pending or complete)
   if(ROLE==='manager'){
     const rec=getSignOff(analyst,PERIOD);
     const acked=rec.analyst;
-    if(!acked){ el.style.display='none'; return; }
     el.style.display='block';
-    el.innerHTML=`
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px">
-        <div>
-          <div style="font-size:14px;font-weight:700;color:#0b0b0b">QA Acknowledgment — ${PERIOD}</div>
-          <div style="font-size:12px;color:#898781;margin-top:2px">Analyst acknowledged their findings for this review period.</div>
-        </div>
-      </div>
-      <div style="border:1.5px solid #0ca30c33;border-radius:10px;padding:18px 20px;background:#0ca30c08">
-        <div style="display:flex;align-items:center;gap:10px">
+    if(acked){
+      el.innerHTML=`
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+          <div>
+            <div style="font-size:14px;font-weight:700;color:#0b0b0b">QA Acknowledgment — ${PERIOD}</div>
+            <div style="font-size:12px;color:#898781;margin-top:2px">Analyst acknowledged their findings for this review period.</div>
+          </div>
           <span style="display:inline-flex;align-items:center;gap:5px;background:#0ca30c;color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:12px">✓ Acknowledged</span>
-          <div><div style="font-size:13px;font-weight:600;color:#0b0b0b">${acked.name}</div><div style="font-size:11px;color:#898781">${acked.ts}</div></div>
         </div>
-      </div>`;
+        <div style="border:1.5px solid #0ca30c33;border-radius:10px;padding:18px 20px;background:#0ca30c08">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="display:inline-flex;align-items:center;gap:5px;background:#0ca30c;color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:12px">✓ Signed</span>
+            <div><div style="font-size:13px;font-weight:600;color:#0b0b0b">${acked.name}</div><div style="font-size:11px;color:#898781">${acked.ts}</div></div>
+          </div>
+        </div>`;
+    } else {
+      el.innerHTML=`
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+          <div>
+            <div style="font-size:14px;font-weight:700;color:#0b0b0b">QA Acknowledgment — ${PERIOD}</div>
+            <div style="font-size:12px;color:#898781;margin-top:2px">Awaiting analyst acknowledgment for this review period.</div>
+          </div>
+          <span style="display:inline-flex;align-items:center;gap:5px;background:#ec835a22;color:#b85c2a;font-size:11px;font-weight:700;padding:4px 12px;border-radius:12px;border:1px solid #ec835a44">⏳ Pending</span>
+        </div>
+        <div style="border:1.5px solid #e1e0d9;border-radius:10px;padding:18px 20px;background:#fafaf8">
+          <div style="display:flex;align-items:center;gap:10px;color:#898781;font-size:13px">
+            <span style="font-size:20px">✍️</span>
+            <div>
+              <div style="font-weight:600;color:#52514e">Analyst Acknowledgment</div>
+              <div style="font-size:12px;margin-top:2px">Awaiting acknowledgment from <strong style="color:#0b0b0b">${analyst}</strong>. The analyst must open their individual dashboard to sign.</div>
+            </div>
+          </div>
+        </div>`;
+    }
     return;
   }
   const rec=getSignOff(analyst,PERIOD);
